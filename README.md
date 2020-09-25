@@ -31,7 +31,7 @@ Solution validity:  96
 
 and when the solution is drawn:
 
-![Partition Plot](readme_imgs/Partition.png)
+![Partition Plot](readme_imgs/partition.png)
 
 we see that no neighboring nodes have the same color. The validity check checks that that is the case.
 
