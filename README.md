@@ -5,8 +5,7 @@ A demo of Graph Partitioning using Leap's Discrete Quadratic Model (DQM) solver.
 ![Original Plot](readme_imgs/not_partition_yet.png)
 
 Figure: The graph that we want to partition, with the following goals:
-1) as few edges between partitions as possible and 2) the partitions should 
-have equal size.
+as few edges between partitions as possible, and equal-sized partitions.
 
 We want to partition this graph so that there are as few edges between
 partitions as possible, and so that the partitions have equal size.
@@ -26,14 +25,15 @@ The program will produce a solution which might look like this:
 ```
 Solution:  {0: 3, 1: 1, 2: 1, 3: 2, 4: 1, 5: 3, 6: 2, 7: 0, 8: 0, 9: 3, 10: 0, 11: 3, 12: 2, 13: 1, 14: 0, 15: 2}
 Solution energy:  96.0
-Solution validity:  96
+Number of links between partitions:  96
 ```
 
 and when the solution is drawn:
 
 ![Partition Plot](readme_imgs/partition.png)
 
-we see that no neighboring nodes have the same color. The validity check checks that that is the case.
+we see that the partitions have equal size. The code counts the number of links
+between partitions.
 
 ## Code Overview
 Leap's DQM solver accepts problems expressed in terms of a DiscreteQuadraticModel object. The DiscreteQuadraticModel contains two dictionaries:
@@ -116,10 +116,10 @@ You can see that there will be 16 rows for each edge in the problem graph.
 
 ## Code Specifics
 
-Let's go through the sections of code in the graph coloring problem:
+Let's go through the sections of code in the graph partitioning problem:
 
-* Initialize the DQM object
 * Define the graph
+* Initialize the DQM object
 * Define the linear bias dictionary. The gradient method is used to implement the condition described above, of penalizing color k by bias k
 * Define the quadratic dictionary. For each (node1, node2) edge in the graph, define the 16 color combinations, and penalize only the cases which have the same color
 * Solve the problem using the DQM solver
@@ -127,4 +127,44 @@ Let's go through the sections of code in the graph coloring problem:
 
 ## License
 
-Released under the Apache License 2.0. See [LICENSE](LICENSE) file.
+ eleased under the Apache License 2.0. See [LICENSE](LICENSE) file.
+ZIV
+# Size of the graph
+graph_nodes = 16
+
+# Initialize the DQM object
+dqm = DiscreteQuadraticModel()
+
+# initial value of Lagrange parameter
+lagrange = 3
+
+# Load the DQM. Define the variables, and then set biases and weights.
+# We set the linear biases to favor lower-numbered colors; this will
+# have the effect of minimizing the number of colors used.
+# We penalize edge connections by the Lagrange parameter, to encourage
+# connected nodes to have different colors.
+for p in G.nodes:
+    dqm.add_variable(num_partitions, label=p)
+for p in G.nodes:
+    dqm.set_linear(p, partitions)
+for p0, p1 in G.edges:
+    dqm.set_quadratic(p0, p1, {(c, c): lagrange for c in partitions})
+
+# Initialize the DQM solver
+sampler = LeapHybridDQMSampler(profile='dqm_test')
+
+# Solve the problem using the DQM solver
+sampleset = sampler.sample_dqm(dqm)
+
+# get the first solution
+sample = sampleset.first.sample
+energy = sampleset.first.energy
+
+# Compute the number of links between different partitions
+sum_diff = 0
+for i, j in G.edges:
+    if sampleset.first.sample[i] != sampleset.first.sample[j]:
+        sum_diff += 1
+print("Solution: ", sample)
+print("Solution energy: ", energy)
+print("Number of links between partitions: ", sum_diff)

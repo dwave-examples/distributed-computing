@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import networkx as nx
-import numpy as np
 from dimod import DiscreteQuadraticModel
 from dwave.system import LeapHybridDQMSampler
 
@@ -26,7 +25,7 @@ graph_nodes = 16
 G = nx.complete_graph(n=graph_nodes)
 n_edges = len(G)
 num_partitions = 4
-partitions = np.linspace(0, num_partitions - 1, num_partitions)
+partitions = range(num_partitions)
 
 # Initialize the DQM object
 dqm = DiscreteQuadraticModel()
@@ -63,4 +62,4 @@ for i, j in G.edges:
         sum_diff += 1
 print("Solution: ", sample)
 print("Solution energy: ", energy)
-print("Solution validity: ", sum_diff)
+print("Number of links between partitions: ", sum_diff)
