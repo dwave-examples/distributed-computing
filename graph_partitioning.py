@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import networkx as nx
+import numpy as np
 from dimod import DiscreteQuadraticModel
 from dwave.system import LeapHybridDQMSampler
 
@@ -46,7 +47,7 @@ for p0, p1 in G.edges:
     dqm.set_quadratic(p0, p1, {(c, c): lagrange for c in partitions})
 
 # Initialize the DQM solver
-sampler = LeapHybridDQMSampler(profile='dqm_test')
+sampler = LeapHybridDQMSampler()
 
 # Solve the problem using the DQM solver
 sampleset = sampler.sample_dqm(dqm)
@@ -55,6 +56,11 @@ sampleset = sampler.sample_dqm(dqm)
 sample = sampleset.first.sample
 energy = sampleset.first.energy
 
+# Count the solutions in each partition
+counts = np.zeros(num_partitions)
+for i in sample:
+    counts[sample[i]] += 1
+
 # Compute the number of links between different partitions
 sum_diff = 0
 for i, j in G.edges:
@@ -62,4 +68,5 @@ for i, j in G.edges:
         sum_diff += 1
 print("Solution: ", sample)
 print("Solution energy: ", energy)
+print("Counts in each partition: ", counts)
 print("Number of links between partitions: ", sum_diff)

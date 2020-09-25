@@ -41,9 +41,9 @@ Leap's DQM solver accepts problems expressed in terms of a DiscreteQuadraticMode
 * linear biases
 * quadratic biases
 
-We want to define these two dictionaries so that a low-energy solution found by the DQM solver will correspond to a solution of the graph coloring problem.
+We want to define these two dictionaries so that a low-energy solution found by the DQM solver will correspond to a solution of the graph partitioning problem.
 
-For this problem, it is easiest to think in terms of ordered pairs (node, color). We will choose colors numbered from 0 to 3, since four colors will color any map in a plane. The nodes will be numbered starting from 0 in the code. For example, the pair (1, 2) corresponds to node 1 and color 2.
+For this problem, it is easiest to think in terms of ordered pairs (node, partition). We will choose partitions numbered from 0 to 3. The nodes will be numbered starting from 0 in the code. For example, the pair (1, 2) corresponds to node 1 and partition 2.
 
 ### Linear Biases
 
@@ -120,51 +120,12 @@ Let's go through the sections of code in the graph partitioning problem:
 
 * Define the graph
 * Initialize the DQM object
+* Introduce the problem variables.
 * Define the linear bias dictionary. The gradient method is used to implement the condition described above, of penalizing color k by bias k
 * Define the quadratic dictionary. For each (node1, node2) edge in the graph, define the 16 color combinations, and penalize only the cases which have the same color
 * Solve the problem using the DQM solver
-* Check that the solution is valid - nodes connected by edges should have different colors
+* Count the number of nodes between partitions
 
 ## License
 
- eleased under the Apache License 2.0. See [LICENSE](LICENSE) file.
-ZIV
-# Size of the graph
-graph_nodes = 16
-
-# Initialize the DQM object
-dqm = DiscreteQuadraticModel()
-
-# initial value of Lagrange parameter
-lagrange = 3
-
-# Load the DQM. Define the variables, and then set biases and weights.
-# We set the linear biases to favor lower-numbered colors; this will
-# have the effect of minimizing the number of colors used.
-# We penalize edge connections by the Lagrange parameter, to encourage
-# connected nodes to have different colors.
-for p in G.nodes:
-    dqm.add_variable(num_partitions, label=p)
-for p in G.nodes:
-    dqm.set_linear(p, partitions)
-for p0, p1 in G.edges:
-    dqm.set_quadratic(p0, p1, {(c, c): lagrange for c in partitions})
-
-# Initialize the DQM solver
-sampler = LeapHybridDQMSampler(profile='dqm_test')
-
-# Solve the problem using the DQM solver
-sampleset = sampler.sample_dqm(dqm)
-
-# get the first solution
-sample = sampleset.first.sample
-energy = sampleset.first.energy
-
-# Compute the number of links between different partitions
-sum_diff = 0
-for i, j in G.edges:
-    if sampleset.first.sample[i] != sampleset.first.sample[j]:
-        sum_diff += 1
-print("Solution: ", sample)
-print("Solution energy: ", energy)
-print("Number of links between partitions: ", sum_diff)
+Released under the Apache License 2.0. See [LICENSE](LICENSE) file.
