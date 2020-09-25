@@ -20,7 +20,7 @@ from dwave.system import LeapHybridDQMSampler
 # Graph partitioning with DQM solver
 
 # Size of the graph
-graph_nodes = 40
+graph_nodes = 16
 
 # Create clique
 G = nx.complete_graph(n=graph_nodes)
@@ -61,6 +61,6 @@ sum_diff = 0
 for i, j in G.edges:
     if sampleset.first.sample[i] != sampleset.first.sample[j]:
         sum_diff += 1
-print("Graph partitioning solution: ", sample)
-print("Graph partitioning solution energy: ", energy)
-print("Graph partitioning solution validity: ", sum_diff)
+print("Solution: ", sample)
+print("Solution energy: ", energy)
+print("Solution validity: ", sum_diff)
