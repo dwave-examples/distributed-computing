@@ -17,7 +17,7 @@ import numpy as np
 from dimod import DiscreteQuadraticModel
 from dwave.system import LeapHybridDQMSampler
 
-# Graph partitioning with DQM solver
+# Graph partitioning on a clique with DQM solver
 
 # Size of the graph
 graph_nodes = 16
@@ -32,17 +32,25 @@ partitions = range(num_partitions)
 dqm = DiscreteQuadraticModel()
 
 # initial value of Lagrange parameter
-lagrange = 3
+lagrange = 1
 
 # Load the DQM. Define the variables, and then set biases and weights.
-# We set the linear biases to favor lower-numbered colors; this will
-# have the effect of minimizing the number of colors used.
-# We penalize edge connections by the Lagrange parameter, to encourage
-# connected nodes to have different colors.
+# There are two terms in the QUBO formulation for graph partitioning on a
+# clique. First, we want to minimize the number of links between different
+# partitions, and second we want the sizes of the partitions to be the
+# same. We handle the first term by penalizing all links between same
+# partitions; this will have the effect of favoring links between
+# partitions. This would seem to maximize the inter-partition links.
+# For the second term, we have a choice of how we want to assign the nodes
+# to different partitions. We will fill them in linear order, starting
+# with node 0 into partition 0, node 1 into partition 1, and then start over.
+
 for p in G.nodes:
     dqm.add_variable(num_partitions, label=p)
 for p in G.nodes:
-    dqm.set_linear(p, partitions)
+    linear_list = np.ones(num_partitions)
+    linear_list[p % num_partitions] = 0
+    dqm.set_linear(p, linear_list)
 for p0, p1 in G.edges:
     dqm.set_quadratic(p0, p1, {(c, c): lagrange for c in partitions})
 
