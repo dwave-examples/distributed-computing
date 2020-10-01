@@ -47,7 +47,8 @@ lagrange = 0.1
 # the desired number of partitions. We have a choice of how we want to 
 # assign the nodes to different partitions. We will fill them in linear 
 # order, starting with node 0 into partition 0, node 1 into partition 1, 
-# and then start over.
+# and then start over. We put ones on all biases except these; this will
+# favor the particular assignments that we want.
 
 for p in G.nodes:
     dqm.add_variable(num_partitions, label=p)
