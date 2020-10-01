@@ -32,18 +32,22 @@ partitions = range(num_partitions)
 dqm = DiscreteQuadraticModel()
 
 # initial value of Lagrange parameter
-lagrange = 1
+lagrange = 0.1
 
 # Load the DQM. Define the variables, and then set biases and weights.
 # There are two terms in the QUBO formulation for graph partitioning on a
 # clique. First, we want to minimize the number of links between different
 # partitions, and second we want the sizes of the partitions to be the
-# same. We handle the first term by penalizing all links between same
-# partitions; this will have the effect of favoring links between
-# partitions. This would seem to maximize the inter-partition links.
-# For the second term, we have a choice of how we want to assign the nodes
-# to different partitions. We will fill them in linear order, starting
-# with node 0 into partition 0, node 1 into partition 1, and then start over.
+# same. We handle the first term by favoring links between same
+# partitions; this will have the effect of penalizing links between
+# partitions, hence minimizing the inter-partition links.
+# We accomplish this by putting a negative sign in front of the Lagrange
+# parameter in the quadratic term.
+# For the second term, we provide biases that favor dividing the nodes into
+# the desired number of partitions. We have a choice of how we want to 
+# assign the nodes to different partitions. We will fill them in linear 
+# order, starting with node 0 into partition 0, node 1 into partition 1, 
+# and then start over.
 
 for p in G.nodes:
     dqm.add_variable(num_partitions, label=p)
@@ -52,7 +56,7 @@ for p in G.nodes:
     linear_list[p % num_partitions] = 0
     dqm.set_linear(p, linear_list)
 for p0, p1 in G.edges:
-    dqm.set_quadratic(p0, p1, {(c, c): lagrange for c in partitions})
+    dqm.set_quadratic(p0, p1, {(c, c): -lagrange for c in partitions})
 
 # Initialize the DQM solver
 sampler = LeapHybridDQMSampler()
