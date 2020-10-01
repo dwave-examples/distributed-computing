@@ -23,8 +23,9 @@ python graph_partitioning.py
 The program will produce a solution which might look like this:
 
 ```
-Solution:  {0: 3, 1: 1, 2: 1, 3: 2, 4: 1, 5: 3, 6: 2, 7: 0, 8: 0, 9: 3, 10: 0, 11: 3, 12: 2, 13: 1, 14: 0, 15: 2}
-Solution energy:  96.0
+Solution:  {0: 0, 1: 1, 2: 2, 3: 3, 4: 0, 5: 1, 6: 2, 7: 3, 8: 0, 9: 1, 10: 2, 11: 3, 12: 0, 13: 1, 14: 2, 15: 3}
+Solution energy:  -2.400000000000001
+Counts in each partition:  [4. 4. 4. 4.]
 Number of links between partitions:  96
 ```
 
@@ -47,72 +48,27 @@ For this problem, it is easiest to think in terms of ordered pairs (node, partit
 
 ### Linear Biases
 
-We set the linear biases in order to use as few colors as possible. We assume 
-a very simple relationship: color k will be penalized by an bias k. This will 
-encourage the system to use the lowest numbered colors as much as possible, 
-which will discourage some colors from being used. 
-Here's the table that we use, for this problem:
-
-|Node|Color|Linear Bias|
-|----|-----|-----------|
-|0|0|0|
-|0|1|1|
-|0|2|2|
-|0|3|3|
-|1|0|0|
-|1|1|1|
-|1|2|2|
-...
-
-For 7 nodes, we see that the table in this problem will have 28 rows.
+We set the linear biases in order to divide the nodes across the partitions
+as equally as possible. For example, for 16 nodes, and 4 partitions, we want
+to have 4 nodes in each partition. One way to do this is to put positive 
+linear bias on every (node, partition) combination, except for particular
+pairs that we want to favor. We start by putting bias 0 on 
+(node 0, partition 0), and bias 0 on (node 1, partition 1), until we have
+reached all the partitions, and then we start over with node 0, node 1, etc.
+This "round robin" approach will favor putting an equal number of nodes
+in all the partitions.
 
 ### Quadratic
 
-The quadratic dictionary tells the DQM solver how to penalize variable combinations, between different ordered pairs, that we want to avoid. In this problem, this means implementing the constraint that neighboring nodes, on the graph, should not have the same color.
+The quadratic dictionary tells the DQM solver how to penalize variable 
+combinations, between different ordered pairs, that we want to avoid. 
+In this problem, this means implementing the constraint that we should have
+as few links between partitions as possible.
 
-An example is that since nodes 0 and 1 have an edge, we do not want both node 0 and node 1 to have color 0. We also do not want them both to have color 1, or color 2. We see that there are four combinations that we will need to penalize for nodes 0 and 1. Looking at the graph, we see we will need to do the same thing for nodes 0 and 6; and for 1 and 2; and so on.
-
-To do this, we apply a penalty to all of these combinations, and the penalty's strength is the Lagrange parameter. If the DQM solver does not yield good solutions, we may need to increase the Lagrange parameter.
-
-With a Lagrange penalty of 3, the quadratic dictionary is given by
-
-|Node1|Color1|Node2|Color2|Penalty|
-|-----|------|-----|------|-------|
-|0|0|1|0|3|
-|0|0|1|1|0|
-|0|0|1|2|0|
-|0|0|1|3|0|
-|0|1|1|0|0|
-|0|1|1|1|3|
-|0|1|1|2|0|
-|0|1|1|3|0|
-|0|2|1|0|0|
-|0|2|1|1|0|
-|0|2|1|2|3|
-|0|2|1|3|0|
-|0|3|1|0|0|
-|0|3|1|1|0|
-|0|3|1|2|0|
-|0|3|1|3|3|
-|0|0|6|0|3|
-|0|0|6|1|0|
-|0|0|6|2|0|
-|0|0|6|3|0|
-|0|1|6|0|0|
-|0|1|6|1|3|
-|0|1|6|2|0|
-|0|1|6|3|0|
-|0|2|6|0|0|
-|0|2|6|1|0|
-|0|2|6|2|3|
-|0|2|6|3|0|
-|0|3|6|0|0|
-|0|3|6|1|0|
-|0|3|6|2|0|
-|0|3|6|3|3|
-...
-
-You can see that there will be 16 rows for each edge in the problem graph.
+To accomplish this, we favor links between same partitions. We put a 
+negative bias on all same partition-links; and we put zero bias on links 
+between different partitions. The Lagrange parameter controls the strength
+of that bias.
 
 ## Code Specifics
 
@@ -120,11 +76,12 @@ Let's go through the sections of code in the graph partitioning problem:
 
 * Define the graph
 * Initialize the DQM object
+* Set the Lagrange parameter
 * Introduce the problem variables.
 * Define the linear bias dictionary. The gradient method is used to implement the condition described above, of penalizing color k by bias k
 * Define the quadratic dictionary. For each (node1, node2) edge in the graph, define the 16 color combinations, and penalize only the cases which have the same color
 * Solve the problem using the DQM solver
-* Count the number of nodes between partitions
+* Count the number of links between partitions
 
 ## License
 
