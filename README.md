@@ -37,7 +37,9 @@ we see that the partitions have equal size. The code counts the number of links
 between partitions.
 
 ## Code Overview
-Leap's DQM solver accepts problems expressed in terms of a DiscreteQuadraticModel object. The DiscreteQuadraticModel contains two dictionaries:
+Leap's DQM solver accepts problems expressed in terms of an
+Ocean DiscreteQuadraticModel object.(https://docs.ocean.dwavesys.com/en/latest/docs-dimod/reference/dqm.html)
+The DiscreteQuadraticModel contains two dictionaries:
 
 * linear biases
 * quadratic biases
