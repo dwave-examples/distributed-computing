@@ -4,8 +4,7 @@ A demo of Graph Partitioning using Leap's hybrid discrete quadratic model (DQM) 
 
 ![Original Plot](readme_imgs/not_partition_yet.png)
 
-The figure above shows the two goals: as few edges between partitions as 
-possible, and equal-sized partitions.
+The figure above shows the graph we want to partition.
 
 We want to partition this graph so that there are as few edges between
 partitions as possible, and so that the partitions have equal size.
