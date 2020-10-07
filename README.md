@@ -66,9 +66,10 @@ combinations that we want to avoid.
 In this problem, this means implementing the constraint that we should have
 as few links between partitions as possible.
 
-To accomplish this, we favor links between same partitions. We put a 
-negative bias on all same partition-links; and we put zero bias on links 
-between different partitions. The Lagrange parameter controls the strength
+To accomplish this, we favor links between nodes which are in the same 
+partition. We put a negative bias on edges between nodes that are in the
+same partition; and we put zero bias on edges between nodes that are in 
+different partitions. The Lagrange parameter controls the strength
 of that bias.
 
 ## Code Specifics
