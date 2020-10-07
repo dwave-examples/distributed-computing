@@ -38,7 +38,7 @@ between partitions.
 
 ## Code Overview
 Leap's DQM solver accepts problems expressed in terms of an
-Ocean DiscreteQuadraticModel object.(https://docs.ocean.dwavesys.com/en/latest/docs-dimod/reference/dqm.html)
+Ocean [`DiscreteQuadraticModel`] (https://docs.ocean.dwavesys.com/en/latest/docs_dimod/reference/dqm.html) object.
 The DiscreteQuadraticModel contains two dictionaries:
 
 * linear biases
