@@ -62,7 +62,7 @@ in all the partitions.
 ### Quadratic
 
 The quadratic dictionary tells the DQM solver how to penalize variable 
-combinations, between different ordered pairs, that we want to avoid. 
+combinations that we want to avoid. 
 In this problem, this means implementing the constraint that we should have
 as few links between partitions as possible.
 
