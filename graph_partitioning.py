@@ -72,7 +72,7 @@ counts = np.zeros(num_partitions)
 for i in sample:
     counts[sample[i]] += 1
 
-# Compute the number of edges between different partitions
+# Compute the number of links between different partitions
 sum_diff = 0
 for i, j in G.edges:
     if sampleset.first.sample[i] != sampleset.first.sample[j]:
@@ -80,4 +80,4 @@ for i, j in G.edges:
 print("Solution: ", sample)
 print("Solution energy: ", energy)
 print("Counts in each partition: ", counts)
-print("Number of edges between partitions: ", sum_diff)
+print("Number of links between partitions: ", sum_diff)

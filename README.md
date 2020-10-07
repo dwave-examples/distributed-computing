@@ -6,7 +6,7 @@ A demo of Graph Partitioning using Leap's hybrid discrete quadratic model (DQM) 
 
 The figure above shows the graph we want to partition.
 
-We want to partition this graph so that there are as few edges between
+We want to partition this graph so that there are as few links between
 partitions as possible, and so that the partitions have equal size.
 This is a [well-known problem](https://en.wikipedia.org/wiki/Graph_partition) which is already in the [D-Wave Collection of Examples](https://github.com/dwave-examples/graph-partitioning) In this repo, we're going to use the D-Wave DQM 
 solver.
