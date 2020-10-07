@@ -1,4 +1,4 @@
-# DQM and Graph Partitioning
+# Graph Partitioning
 
 A demo of Graph Partitioning using Leap's Discrete Quadratic Model (DQM) solver.
 
