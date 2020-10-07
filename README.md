@@ -9,7 +9,7 @@ possible, and equal-sized partitions.
 
 We want to partition this graph so that there are as few edges between
 partitions as possible, and so that the partitions have equal size.
-This is a well-known problem (https://en.wikipedia.org/wiki/Graph_partition) which is already in the D-Wave Collection of Examples (https://github.com/dwave-examples/graph-partitioning) In this repo, we're going to use the D-Wave DQM 
+This is a [well-known problem](https://en.wikipedia.org/wiki/Graph_partition) which is already in the [D-Wave Collection of Examples](https://github.com/dwave-examples/graph-partitioning) In this repo, we're going to use the D-Wave DQM 
 solver.
 
 ## Usage
