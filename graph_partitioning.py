@@ -34,8 +34,8 @@ dqm = DiscreteQuadraticModel()
 lagrange = 0.1
 
 # Load the DQM. Define the variables, and then set biases and weights.
-# There are two terms in the QUBO formulation for graph partitioning on a
-# clique. First, we want to minimize the number of links between different
+# There are two terms in the QUBO formulation for graph partitioning.
+# First, we want to minimize the number of links between different
 # partitions, and second we want the sizes of the partitions to be the
 # same. We handle the first term by favoring links between same
 # partitions; this will have the effect of penalizing links between
@@ -51,7 +51,6 @@ lagrange = 0.1
 
 for p in G.nodes:
     dqm.add_variable(num_partitions, label=p)
-for p in G.nodes:
     linear_list = np.ones(num_partitions)
     linear_list[p % num_partitions] = 0
     dqm.set_linear(p, linear_list)

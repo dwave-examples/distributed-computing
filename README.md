@@ -1,4 +1,4 @@
-# Graph Partitioning
+# Graph Partitioning Using A Discrete Quadratic Model
 
 A demo of Graph Partitioning using Leap's hybrid discrete quadratic model (DQM) solver.
 
@@ -38,7 +38,7 @@ between partitions.
 
 ## Code Overview
 Leap's DQM solver accepts problems expressed in terms of an
-Ocean `DiscreteQuadraticModel` (https://docs.ocean.dwavesys.com/en/latest/docs_dimod/reference/dqm.html) object.
+Ocean [DiscreteQuadraticModel](https://docs.ocean.dwavesys.com/en/latest/docs_dimod/reference/dqm.html) object.
 The DiscreteQuadraticModel contains two dictionaries:
 
 * linear biases
