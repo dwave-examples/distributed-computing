@@ -17,50 +17,63 @@ import numpy as np
 from dimod import DiscreteQuadraticModel
 from dwave.system import LeapHybridDQMSampler
 
-# Graph partitioning on a clique with DQM solver
+# Graph partitioning with DQM solver
 
-# Size of the graph
-graph_nodes = 16
+# Number of nodes in the graph
+num_nodes = 30
 
-# Create clique
-G = nx.complete_graph(n=graph_nodes)
-num_partitions = 4
+# Create a random geometric graph
+G = nx.random_geometric_graph(n=num_nodes, radius=0.4, dim=2, seed=518)
+
+# Set up the partitions
+num_partitions = 5
 partitions = range(num_partitions)
 
 # Initialize the DQM object
 dqm = DiscreteQuadraticModel()
 
 # initial value of Lagrange parameter
-lagrange = 0.1
+lagrange = 4
 
-# Load the DQM. Define the variables, and then set biases and weights.
-# There are two terms in the QUBO formulation for graph partitioning.
-# First, we want to minimize the number of links between different
-# partitions, and second we want the sizes of the partitions to be the
-# same. We handle the first term by favoring links between same
-# partitions; this will have the effect of penalizing links between
-# partitions, hence minimizing the inter-partition links.
-# We accomplish this by putting a negative sign in front of the Lagrange
-# parameter in the quadratic term.
-# For the second term, we provide biases that favor dividing the nodes into
-# the desired number of partitions. We have a choice of how we want to 
-# assign the nodes to different partitions. We will fill them in linear 
-# order, starting with node 0 into partition 0, node 1 into partition 1, 
-# and then start over. We put ones on all biases except these; this will
-# favor the particular assignments that we want.
+# Compute degree of each node in the graph, for use in the linear terms
+# in the DQM.
+degree = {n0: 0 for n0 in G.nodes}
+for p0, p1 in G.edges:
+    degree[p0] += 1
+    degree[p1] += 1
 
+# Define the DQM variables. We need to define all of them first because there
+# are not edges between all the nodes; hence, there may be quadratic terms
+# between nodes which don't have edges connecting them.
 for p in G.nodes:
     dqm.add_variable(num_partitions, label=p)
-    linear_list = np.ones(num_partitions)
-    linear_list[p % num_partitions] = 0
-    dqm.set_linear(p, linear_list)
+
+# Loop over all nodes
+for p in G.nodes:
+    # Compose the linear term as a sum of the constraint contribution and
+    # the objective contribution
+    constraint_const = lagrange * (1 - (2 * num_nodes / num_partitions))
+    linear_term = constraint_const + (np.ones(num_partitions) * degree[p])
+    dqm.set_linear(p, linear_term)
+
+    # Loop over all other nodes
+    for q in G.nodes:
+        # Avoid double count
+        if q > p:
+            # Quadratic bias for node pairs which do not have edges between
+            # them
+            if (p, q) not in G.edges and (q, p) not in G.edges:
+                dqm.set_quadratic(p, q, {(c, c): (2 * lagrange) for c in partitions})
+
+# Quadratic term for node pairs which have edges between them
 for p0, p1 in G.edges:
-    dqm.set_quadratic(p0, p1, {(c, c): -lagrange for c in partitions})
+    dqm.set_quadratic(p0, p1, {(c, c): ((2 * lagrange) - 2) for c in partitions})
 
 # Initialize the DQM solver
 sampler = LeapHybridDQMSampler()
 
 # Solve the problem using the DQM solver
+offset = lagrange * num_nodes * num_nodes / num_partitions
 sampleset = sampler.sample_dqm(dqm)
 
 # get the first solution
@@ -78,6 +91,6 @@ for i, j in G.edges:
     if sampleset.first.sample[i] != sampleset.first.sample[j]:
         sum_diff += 1
 print("Solution: ", sample)
-print("Solution energy: ", energy)
+print("Solution energy with offset included: ", energy + offset)
 print("Counts in each partition: ", counts)
 print("Number of links between partitions: ", sum_diff)
