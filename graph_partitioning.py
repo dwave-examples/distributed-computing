@@ -41,7 +41,6 @@ lagrange = 10
 for p in G.nodes:
     dqm.add_variable(num_partitions, label=p)
 
-# Loop over all nodes
 for p in G.nodes:
     # Compose the linear term as a sum of the constraint contribution and
     # the objective contribution
