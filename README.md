@@ -84,7 +84,7 @@ sum_partitions(k) ( sum(x_i_k) - N/K ) ^ 2
 This will have its minimum when each partition has `N`/`K`  nodes.
 
 We bring the objective and constraints together by multiplying the 
-constraints by $\gamma$, the [Lagrange parameter](https://en.wikipedia.org/wiki/Lagrange_multiplier)
+constraints by &gamma;, the [Lagrange parameter](https://en.wikipedia.org/wiki/Lagrange_multiplier)
 
 In the code, we create the Q matrix for this QUBO as a dictionary iteratively,
 looping over the edges and nodes in our graph just as we see in the summation
