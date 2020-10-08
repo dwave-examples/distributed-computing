@@ -36,24 +36,25 @@ we see that the partitions have equal size. The code counts the number of links
 between partitions.
 
 ## Code Overview
-As noted earlier, the Graph Partitioning problem is in the [D-Wave Collection of Examples](https://github.com/dwave-examples/graph-partitioning), but there it is formulated for 2 teams. In this repo, we're going to use the D-Wave DQM,
-and the formulation will be for `K` partitions.
+As noted earlier, the Graph Partitioning problem is in the [D-Wave Collection of Examples](https://github.com/dwave-examples/graph-partitioning), but there it is formulated for 2 partitions. In this repo, we're going to use the D-Wave DQM solver, and the formulation will be for `K` partitions.
 
 The code implements a QUBO formulation of this problem, which is suitable for implementing for the DQM solver.
 
 The answer that we are looking for is a partition of the nodes in the graph, so
-we will assign a DQM variable for each node, i.e. variable `x_i_j` denotes
-whether node `i` is in subset `j` or not.
-ZOIB
+we will assign a DQM variable for each node, i.e. variable `x_i_k` denotes
+whether node `i` is in subset `k` or not.
 
-The objective function that we want should minimize the number of cut edges. To
-count how many cut edges we have given a partition of the nodes (assignment of
-our binary variables), we start with a single edge.  The table below shows how
+The objective function that we want should minimize the number of 
+links between different partitions. To
+count how many links between different partitions we have, 
+given a partition of the nodes (assignment of our binary variables), 
+we start with a single edge.  The table below shows how
 we count the cut edges for a given graph partition (assignment of values to our
 binary variables). Columns `x_i` and `x_j` are two nodes; column edge (i, j)
 represents an edge between these two nodes.  We only want to count an edge if
 the endpoints are in different subsets, and so we assign a 1 for the edge column
 in this case and a 0 otherwise.
+ZOIB
 
 | x_i | x_j | edge (i,j) |
 | :---: | :---: | :---: |
