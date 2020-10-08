@@ -45,7 +45,7 @@ constraint_const = lagrange * (1 - (2 * num_nodes / num_partitions))
 for p in G.nodes:
     # Compose the linear term as a sum of the constraint contribution and
     # the objective contribution
-    linear_term = constraint_const + (np.ones(num_partitions) * G.degree[p])
+    linear_term = constraint_const + (0.5 * np.ones(num_partitions) * G.degree[p])
     dqm.set_linear(p, linear_term)
 
 # Quadratic term for node pairs which do not have edges between them
@@ -54,7 +54,7 @@ for p0, p1 in nx.non_edges(G):
 
 # Quadratic term for node pairs which have edges between them
 for p0, p1 in G.edges:
-    dqm.set_quadratic(p0, p1, {(c, c): ((2 * lagrange) - 2) for c in partitions})
+    dqm.set_quadratic(p0, p1, {(c, c): ((2 * lagrange) - 1) for c in partitions})
 
 # Initialize the DQM solver
 sampler = LeapHybridDQMSampler()
