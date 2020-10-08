@@ -63,7 +63,7 @@ The contribution from the constraints is a constant for all
 entries, and it is included so that the overall energy computation yields
 a sensible result.
 
-### Quadratic
+### Quadratic Biases
 
 The quadratic biases also have contributions from both the objective and the
 constraints, and they are summed up in the code. Note that the code needs
@@ -76,10 +76,9 @@ Let's go through the sections of code in the graph partitioning problem:
 
 * Define the graph
 * Initialize the DQM object
-* Set the Lagrange parameter
-* Introduce the problem variables.
-* Define the linear bias dictionary.
-* Define the quadratic dictionary. 
+* Set the [Lagrange parameter](https://en.wikipedia.org/wiki/Lagrange_multiplier)
+* Define the linear biases
+* Define the quadratic biases
 * Solve the problem using the DQM solver
 * Count the number of links between partitions
 

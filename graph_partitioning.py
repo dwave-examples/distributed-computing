@@ -41,10 +41,10 @@ lagrange = 10
 for p in G.nodes:
     dqm.add_variable(num_partitions, label=p)
 
+constraint_const = lagrange * (1 - (2 * num_nodes / num_partitions))
 for p in G.nodes:
     # Compose the linear term as a sum of the constraint contribution and
     # the objective contribution
-    constraint_const = lagrange * (1 - (2 * num_nodes / num_partitions))
     linear_term = constraint_const + (np.ones(num_partitions) * G.degree[p])
     dqm.set_linear(p, linear_term)
 
@@ -67,7 +67,7 @@ sampleset = sampler.sample_dqm(dqm)
 sample = sampleset.first.sample
 energy = sampleset.first.energy
 
-# Count the solutions in each partition
+# Count the nodes in each partition
 counts = np.zeros(num_partitions)
 for i in sample:
     counts[sample[i]] += 1
