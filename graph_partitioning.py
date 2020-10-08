@@ -48,13 +48,9 @@ for p in G.nodes:
     linear_term = constraint_const + (np.ones(num_partitions) * G.degree[p])
     dqm.set_linear(p, linear_term)
 
-    for q in G.nodes:
-        # Avoid double count
-        if q > p:
-            # Quadratic bias for node pairs which do not have edges between
-            # them
-            if (p, q) not in G.edges and (q, p) not in G.edges:
-                dqm.set_quadratic(p, q, {(c, c): (2 * lagrange) for c in partitions})
+# Quadratic term for node pairs which do not have edges between them
+for p0, p1 in nx.non_edges(G):
+    dqm.set_quadratic(p0, p1, {(c, c): (2 * lagrange) for c in partitions})
 
 # Quadratic term for node pairs which have edges between them
 for p0, p1 in G.edges:
