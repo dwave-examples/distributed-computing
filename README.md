@@ -22,10 +22,10 @@ python graph_partitioning.py
 The program will produce a solution which might look like this:
 
 ```
-Solution:  {0: 1, 1: 3, 2: 0, 3: 2, 4: 3, 5: 0, 6: 4, 7: 2, 8: 0, 9: 3, 10: 3, 11: 1, 12: 4, 13: 0, 14: 1, 15: 1, 16: 4, 17: 4, 18: 2, 19: 2, 20: 1, 21: 2, 22: 2, 23: 4, 24: 0, 25: 4, 26: 3, 27: 3, 28: 1, 29: 4}
-Solution energy:  290.0
-Counts in each partition:  [5. 6. 6. 6. 7.]
-Number of links between partitions:  133
+Solution:  {0: 4, 1: 0, 2: 2, 3: 4, 4: 4, 5: 1, 6: 3, 7: 1, 8: 0, 9: 4, 10: 3, 11: 1, 12: 2, 13: 3, 14: 3, 15: 0, 16: 1, 17: 2, 18: 1, 19: 3, 20: 2, 21: 2, 22: 0, 23: 3, 24: 4, 25: 0, 26: 2, 27: 1, 28: 0, 29: 4}
+Solution energy with offset included:  134.0
+Counts in each partition:  [6. 6. 6. 6. 6.]
+Number of links between partitions:  67
 ```
 
 and when the solution is drawn:
@@ -38,39 +38,37 @@ between partitions.
 ## Code Overview
 Leap's DQM solver accepts problems expressed in terms of an
 Ocean [DiscreteQuadraticModel](https://docs.ocean.dwavesys.com/en/latest/docs_dimod/reference/dqm.html) object.
-The DiscreteQuadraticModel contains two dictionaries:
+The DiscreteQuadraticModel has two types of bias:
 
 * linear biases
 * quadratic biases
 
-We want to define these two dictionaries so that a low-energy solution found by the DQM solver will correspond to a solution of the graph partitioning problem.
+We want to define these two biases so that a low-energy solution found by the DQM solver will correspond to a solution of the graph partitioning problem.
 
-For this problem, it is easiest to think in terms of ordered pairs (node, partition). We will choose partitions numbered from 0 to 3. The nodes will be numbered starting from 0 in the code. For example, the pair (1, 2) corresponds to node 1 and partition 2.
+The QUBO has two parts: the objective, and the constraints.
+The objective consists of terms which, for each edge in the graph, favor
+solutions in which both nodes are in the same partition. This penalizes node
+pairs which are in different partitions, and thus we minimize the number
+of links between partitions.
+The constraints consist of terms which constrain each partition to have the
+same number of nodes; this number is the number of nodes divided by the
+number of partitions.
 
 ### Linear Biases
 
-We set the linear biases in order to divide the nodes across the partitions
-as equally as possible. For example, for 16 nodes, and 4 partitions, we want
-to have 4 nodes in each partition. One way to do this is to put positive 
-linear bias on every (node, partition) combination, except for particular
-pairs that we want to favor. We start by putting bias 0 on 
-(node 0, partition 0), and bias 0 on (node 1, partition 1), until we have
-reached all the partitions, and then we start over with node 0, node 1, etc.
-This "round robin" approach will favor putting an equal number of nodes
-in all the partitions.
+The linear biases have contributions from both the objective and the
+constraints. The contribution from the objective reduces to an expression
+involving the degree of each node in the graph, which is calculated in
+the code. The contribution from the constraints is a constant for all
+entries, and it is included so that the overall energy computation yields
+a sensible result.
 
 ### Quadratic
 
-The quadratic dictionary tells the DQM solver how to penalize variable 
-combinations that we want to avoid. 
-In this problem, this means implementing the constraint that we should have
-as few links between partitions as possible.
-
-To accomplish this, we favor links between nodes which are in the same 
-partition. We put a negative bias on edges between nodes that are in the
-same partition; and we put zero bias on edges between nodes that are in 
-different partitions. The Lagrange parameter controls the strength
-of that bias.
+The quadratic biases also have contributions from both the objective and the
+constraints, and they are summed up in the code. Note that the code needs
+to add terms from node pairs which don't have edges between them; that is
+done in a separate loop.
 
 ## Code Specifics
 
@@ -80,8 +78,8 @@ Let's go through the sections of code in the graph partitioning problem:
 * Initialize the DQM object
 * Set the Lagrange parameter
 * Introduce the problem variables.
-* Define the linear bias dictionary. The gradient method is used to implement the condition described above, of penalizing color k by bias k
-* Define the quadratic dictionary. For each (node1, node2) edge in the graph, define the 16 color combinations, and penalize only the cases which have the same color
+* Define the linear bias dictionary.
+* Define the quadratic dictionary. 
 * Solve the problem using the DQM solver
 * Count the number of links between partitions
 
