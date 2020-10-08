@@ -61,14 +61,16 @@ in the edge column if one node is in partition `k` and the other node is not.
 | 1 | 0 | 1 |
 | 1 | 1 | 0 |
 
+From this table, we see that we can use the expression `x_i_k+x_j_-2x_i_kx_j_k`
+to calculate the edge column in our table. Note that if we use this expression,
+over all partitions and all edges, we will maximize the number of edges
+between nodes in each partition, and that will minimize the number of links
+between different partitions. Thus, for the entire graph, our objective
+function can be written as shown below:
+
+sum_partitions sum_edges(E) `x_i_k+x_j_-2x_i_kx_j_k`
+
 ZOIB
-From this table, we see that we can use the expression `x_i+x_j-2x_ix_j`
-to calculate the edge column in our table.  Now for our entire graph, our
-objective function can be written as shown below, where the sum is over all
-edges in the graph, denoted by E.
-
-![QUBO](readme_imgs/QUBO.png)
-
 Next we need to consider our constraint:  Subset 0 and Subset 1 must have the
 same sizes.  We can measure the size of Subset 1 by summing up our binary
 variables.  To ensure the two subsets have the same size, we enforce a
