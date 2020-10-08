@@ -38,7 +38,7 @@ between partitions.
 ## Code Overview
 As noted earlier, the Graph Partitioning problem is in the [D-Wave Collection of Examples](https://github.com/dwave-examples/graph-partitioning), but there it is formulated for 2 partitions. In this repo, we're going to use the D-Wave DQM solver, and the formulation will be for `K` partitions.
 
-The code implements a QUBO formulation of this problem, which is suitable for implementing for the DQM solver.
+The code implements a QUBO formulation of this problem, which is suitable for implementing on the DQM solver.
 
 The answer that we are looking for is a partition of the nodes in the graph, so
 we will assign a DQM variable for each node, i.e. variable `x_i_k` denotes
@@ -68,23 +68,29 @@ between nodes in each partition, and that will minimize the number of links
 between different partitions. Thus, for the entire graph, our objective
 function can be written as shown below:
 
-sum_partitions(k) sum_edges(E) `x_i_k+x_j_k-2x_i_kx_j_k`
+objective = 0.5 * sum_partitions(k) sum_edges(E) `x_i_k+x_j_k-2x_i_kx_j_k`
+
+where we have divided by 2 to avoid double-counting when a pair of nodes
+is between partitions.
 
 Next we need to consider our constraint:  Each partition must have the
 same size.  We can measure the size of partition `k` by summing up our binary
-variables associated with partition `k` (for example, x_1_k, x_2_k...).  
+variables associated with partition `k` (for example, `x_1_k`, `x_2_k`, ...).  
 To ensure that all of the partitions have the same size, we enforce a
-constraint that Partition `k` has size equal to `N`/`K`, where `N` is the number
+constraint that partition `k` has size equal to `N`/`K`, where `N` is the number
 of nodes in the graph and `K` is the number of partitions.
 We represent this constraint mathematically using our chosen
 binary variables as follows:
 
-sum_partitions(k) ( sum(x_i_k) - N/K ) ^ 2
+constraint = sum_partitions(k) ( sum(x_i_k) - N/K ) ^ 2
 
 This will have its minimum when each partition has `N`/`K`  nodes.
 
 We bring the objective and constraints together by multiplying the 
 constraints by &gamma;, the [Lagrange parameter](https://en.wikipedia.org/wiki/Lagrange_multiplier).
+
+QUBO = 0.5 * sum_partitions(k) sum_edges(E) `x_i_k+x_j_k-2x_i_kx_j_k`
+ + &gamma; sum_partitions(k) ( sum(x_i_k) - N/K ) ^ 2
 
 In the code, we create the Q matrix for this QUBO as a dictionary iteratively,
 looping over the edges and nodes in our graph just as we see in the summation
