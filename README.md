@@ -70,41 +70,21 @@ function can be written as shown below:
 
 sum_partitions(k) sum_edges(E) `x_i_k+x_j_k-2x_i_kx_j_k`
 
-ZOIB
-Next we need to consider our constraint:  Subset 0 and Subset 1 must have the
-same sizes.  We can measure the size of Subset 1 by summing up our binary
-variables.  To ensure the two subsets have the same size, we enforce a
-constraint that Subset 1 has size equal to half of all nodes in the graph.  We
-first consider how to represent this constraint mathematically using our chosen
-binary variables, and use the following equality to represent our constraint,
-where V represents the set of all nodes in the graph.
+Next we need to consider our constraint:  Each partition must have the
+same size.  We can measure the size of partition `k` by summing up our binary
+variables associated with partition `k` (for example, x_1_k, x_2_k...).  
+To ensure that all of the partitions have the same size, we enforce a
+constraint that Partition `k` has size equal to `N`/`K`, where `N` is the number
+of nodes in the graph and `K` is the number of partitions.
+We represent this constraint mathematically using our chosen
+binary variables as follows:
 
-![Constraint 1](readme_imgs/constraint_1.png)
+sum_partitions(k) ( sum(x_i_k) - N/K ) ^ 2
 
-For a QUBO, we need our constraints to be represented by mathematical
-expressions that are satisfied at their minimum value.  For this constraint, we
-can use the following expression that has a minimum value of 0 that occurs when
-Subset 1 has size exactly `|V|/2`.
+This will have its minimum when each partition has `N`/`K`  nodes.
 
-![Constraint 2](readme_imgs/constraint_2.png)
-
-To simplify this expression and determine the coefficients for our QUBO
-equation, we first multiply out the expression.
-
-![Constraint 3](readme_imgs/constraint_3.png)
-
-Next we can simplify this expression down to linear and quadratic terms for our
-QUBO.  Recall that for binary variables we can replace any squared term with a
-linear term (since 0^2=0 and 1^2=1), and we can remove any constant terms in
-our QUBO.  This results in the following final expression for our constraint.
-
-![Constraint 4](readme_imgs/constraint_4.png)
-
-To combine our objective and constraints into a single QUBO expression, we
-simply add together the objective function and our constraint (multiplied by
-gamma, the Lagrange parameter).
-
-![Final QUBO](readme_imgs/final_QUBO.png)
+We bring the objective and constraints together by multiplying the 
+constraints by `gamma`, the [Lagrange parameter](https://en.wikipedia.org/wiki/Lagrange_multiplier)
 
 In the code, we create the Q matrix for this QUBO as a dictionary iteratively,
 looping over the edges and nodes in our graph just as we see in the summation
