@@ -20,7 +20,7 @@ from dwave.system import LeapHybridDQMSampler
 # Graph partitioning with DQM solver
 
 # Number of nodes in the graph
-num_nodes = 120
+num_nodes = 30
 
 # Create a random geometric graph
 G = nx.random_geometric_graph(n=num_nodes, radius=0.4, dim=2, seed=518)
