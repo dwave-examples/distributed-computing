@@ -58,8 +58,8 @@ number of partitions.
 
 The linear biases have contributions from both the objective and the
 constraints. The contribution from the objective reduces to an expression
-involving the degree of each node in the graph, which is calculated in
-the code. The contribution from the constraints is a constant for all
+involving the degree of each node in the graph.
+The contribution from the constraints is a constant for all
 entries, and it is included so that the overall energy computation yields
 a sensible result.
 

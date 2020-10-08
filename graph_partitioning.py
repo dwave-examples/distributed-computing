@@ -20,7 +20,7 @@ from dwave.system import LeapHybridDQMSampler
 # Graph partitioning with DQM solver
 
 # Number of nodes in the graph
-num_nodes = 30
+num_nodes = 120
 
 # Create a random geometric graph
 G = nx.random_geometric_graph(n=num_nodes, radius=0.4, dim=2, seed=518)
@@ -33,14 +33,7 @@ partitions = range(num_partitions)
 dqm = DiscreteQuadraticModel()
 
 # initial value of Lagrange parameter
-lagrange = 4
-
-# Compute degree of each node in the graph, for use in the linear terms
-# in the DQM.
-degree = {n0: 0 for n0 in G.nodes}
-for p0, p1 in G.edges:
-    degree[p0] += 1
-    degree[p1] += 1
+lagrange = 10
 
 # Define the DQM variables. We need to define all of them first because there
 # are not edges between all the nodes; hence, there may be quadratic terms
@@ -53,7 +46,7 @@ for p in G.nodes:
     # Compose the linear term as a sum of the constraint contribution and
     # the objective contribution
     constraint_const = lagrange * (1 - (2 * num_nodes / num_partitions))
-    linear_term = constraint_const + (np.ones(num_partitions) * degree[p])
+    linear_term = constraint_const + (np.ones(num_partitions) * G.degree[p])
     dqm.set_linear(p, linear_term)
 
     # Loop over all other nodes
