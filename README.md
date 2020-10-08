@@ -82,7 +82,7 @@ of nodes in the graph and `K` is the number of partitions.
 We represent this constraint mathematically using our chosen
 binary variables as follows:
 
-constraint = sum_partitions(k) ( sum(x_i_k) - N/K ) ^ 2
+constraint = sum_partitions(k) ( sum_nodes (x_i_k) - N/K ) ^ 2
 
 This will have its minimum when each partition has `N`/`K`  nodes.
 
@@ -90,7 +90,25 @@ We bring the objective and constraints together by multiplying the
 constraints by &gamma;, the [Lagrange parameter](https://en.wikipedia.org/wiki/Lagrange_multiplier).
 
 QUBO = 0.5 * sum_partitions(k) sum_edges(E) `x_i_k+x_j_k-2x_i_kx_j_k`
- + &gamma; sum_partitions(k) ( sum(x_i_k) - N/K ) ^ 2
+ + &gamma; sum_partitions(k) ( sum_nodes(x_i_k) - N/K ) ^ 2
+
+There are algebraic simplifications that can be performed on this sum.
+Multiplying the second term out, we find:
+
+QUBO = 0.5 * sum_partitions(k) sum_edges(E) `x_i_k+x_j_k-2x_i_kx_j_k`
+ + &gamma; sum_partitions(k) ( sum_nodes(x_i_k) ) ^ 2
+ + &gamma; sum_partitions(k) ( -2N/K sum_nodes(x_i_k) )
+ + &gamma; sum_partitions(k) ( N^2 / K^2 )
+
+QUBO = (&gamma; N^2 / K) + 0.5 * sum_partitions(k) sum_edges(E) `x_i_k+x_j_k-2x_i_kx_j_k`
+ + &gamma; sum_partitions(k) ( sum_nodes(x_i_k) ) ^ 2
+ + &gamma; sum_partitions(k) ( -2N/K sum_nodes(x_i_k) )
+
+and expanding the squared sum,
+
+QUBO = (&gamma; N^2 / K) + 0.5 * sum_partitions(k) sum_edges(E) `x_i_k+x_j_k-2x_i_kx_j_k`
+ + &gamma; sum_partitions(k) ( sum_nodes(x_i_k) + 2 sum_nodes_ij (x_i_k) x_j_k )
+ + &gamma; sum_partitions(k) ( -2N/K sum_nodes(x_i_k) )
 
 In the code, we create the Q matrix for this QUBO as a dictionary iteratively,
 looping over the edges and nodes in our graph just as we see in the summation
