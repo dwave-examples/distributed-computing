@@ -61,14 +61,14 @@ in the edge column if one node is in partition `k` and the other node is not.
 | 1 | 0 | 1 |
 | 1 | 1 | 0 |
 
-From this table, we see that we can use the expression `x_i_k+x_j_-2x_i_kx_j_k`
+From this table, we see that we can use the expression `x_i_k+x_j_k-2x_i_kx_j_k`
 to calculate the edge column in our table. Note that if we use this expression,
 over all partitions and all edges, we will maximize the number of edges
 between nodes in each partition, and that will minimize the number of links
 between different partitions. Thus, for the entire graph, our objective
 function can be written as shown below:
 
-sum_partitions sum_edges(E) `x_i_k+x_j_-2x_i_kx_j_k`
+sum_partitions(k) sum_edges(E) `x_i_k+x_j_k-2x_i_kx_j_k`
 
 ZOIB
 Next we need to consider our constraint:  Subset 0 and Subset 1 must have the
