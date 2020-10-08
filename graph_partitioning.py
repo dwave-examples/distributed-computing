@@ -49,7 +49,6 @@ for p in G.nodes:
     linear_term = constraint_const + (np.ones(num_partitions) * G.degree[p])
     dqm.set_linear(p, linear_term)
 
-    # Loop over all other nodes
     for q in G.nodes:
         # Avoid double count
         if q > p:
