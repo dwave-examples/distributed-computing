@@ -48,21 +48,20 @@ The objective function that we want should minimize the number of
 links between different partitions. To
 count how many links between different partitions we have, 
 given a partition of the nodes (assignment of our binary variables), 
-we start with a single edge.  The table below shows how
-we count the cut edges for a given graph partition (assignment of values to our
-binary variables). Columns `x_i` and `x_j` are two nodes; column edge (i, j)
-represents an edge between these two nodes.  We only want to count an edge if
-the endpoints are in different subsets, and so we assign a 1 for the edge column
-in this case and a 0 otherwise.
-ZOIB
+we start with a single edge. We begin by considering the possibilities
+if this edge is in, or not in, partition `k`. The table below shows the
+four possibilities. We want either both nodes to be in partition `k`, or 
+neither node to be in partition `k`. To accomplish this, we assign a 1
+in the edge column if one node is in partition `k` and the other node is not.
 
-| x_i | x_j | edge (i,j) |
+| x_i_k | x_j_k | edge (i,j) |
 | :---: | :---: | :---: |
 | 0 | 0 | 0 |
 | 0 | 1 | 1 |
 | 1 | 0 | 1 |
 | 1 | 1 | 0 |
 
+ZOIB
 From this table, we see that we can use the expression `x_i+x_j-2x_ix_j`
 to calculate the edge column in our table.  Now for our entire graph, our
 objective function can be written as shown below, where the sum is over all
