@@ -8,7 +8,7 @@ The figure above shows the graph we want to partition.
 
 We want to partition this graph so that there are as few links between
 partitions as possible, and so that the partitions have equal size.
-This is a [well-known problem](https://en.wikipedia.org/wiki/Graph_partition) which is already in the [D-Wave Collection of Examples](https://github.com/dwave-examples/graph-partitioning) In this repo, we're going to use the D-Wave DQM 
+This is a [well-known problem](https://en.wikipedia.org/wiki/Graph_partition) which is already in the [D-Wave Collection of Examples](https://github.com/dwave-examples/graph-partitioning). In this repo, we're going to use the D-Wave DQM 
 solver.
 
 ## Usage
@@ -22,10 +22,10 @@ python graph_partitioning.py
 The program will produce a solution which might look like this:
 
 ```
-Solution:  {0: 0, 1: 1, 2: 2, 3: 3, 4: 0, 5: 1, 6: 2, 7: 3, 8: 0, 9: 1, 10: 2, 11: 3, 12: 0, 13: 1, 14: 2, 15: 3}
-Solution energy:  -2.400000000000001
-Counts in each partition:  [4. 4. 4. 4.]
-Number of links between partitions:  96
+Solution:  {0: 1, 1: 3, 2: 0, 3: 2, 4: 3, 5: 0, 6: 4, 7: 2, 8: 0, 9: 3, 10: 3, 11: 1, 12: 4, 13: 0, 14: 1, 15: 1, 16: 4, 17: 4, 18: 2, 19: 2, 20: 1, 21: 2, 22: 2, 23: 4, 24: 0, 25: 4, 26: 3, 27: 3, 28: 1, 29: 4}
+Solution energy:  290.0
+Counts in each partition:  [5. 6. 6. 6. 7.]
+Number of links between partitions:  133
 ```
 
 and when the solution is drawn:
