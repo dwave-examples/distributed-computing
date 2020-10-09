@@ -109,6 +109,10 @@ and expanding the squared sum,
 
 ![eq6](https://latex.codecogs.com/gif.latex?%5Clarge%20QUBO%20%3D%20%5Cgamma%5Cfrac%7BN%5E2%7D%7BK%7D%20&plus;%20%5Cfrac%7B1%7D%7B2%7D%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%2Cj%5Cepsilon%20E%7D%28x_%7Bik%7D%20&plus;%20x_%7Bjk%7D%20-%202x_%7Bik%7D%20x_%7Bjk%7D%29&plus;%20%5Cgamma%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Cleft%20%28%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7Dx_%7Bik%7D%20&plus;%202%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7D%20%5Csum%5Climits_%7Bj%3Ei%7D%5Climits%5E%7BN%7D%20x_%7Bik%7Dx_%7Bjk%7D%20%5Cright%20%29%20&plus;%20%5Cgamma%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%28-2%5Cfrac%7BN%7D%7Bk%7D%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7D%20x_%7Bik%7D%29)
 
+and we can merge the linear terms,
+
+![eq7](https://latex.codecogs.com/gif.latex?%5Clarge%20QUBO%20%3D%20%5Cgamma%5Cfrac%7BN%5E2%7D%7BK%7D%20&plus;%20%5Cfrac%7B1%7D%7B2%7D%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%2Cj%5Cepsilon%20E%7D%28x_%7Bik%7D%20&plus;%20x_%7Bjk%7D%20-%202x_%7Bik%7D%20x_%7Bjk%7D%29&plus;%20%5Cgamma%20%281%20-%202%5Cfrac%7BN%7D%7BK%7D%29%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7Dx_%7Bik%7D%20&plus;%202%5Cgamma%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7D%20%5Csum%5Climits_%7Bj%3Ei%7D%5Climits%5E%7BN%7D%20x_%7Bik%7Dx_%7Bjk%7D)
+
 In the code, we create the Q matrix for this QUBO as a dictionary iteratively,
 looping over the edges and nodes in our graph just as we see in the summation
 of our QUBO expression.
