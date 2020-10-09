@@ -55,7 +55,8 @@ four possibilities. We want either both nodes to be in partition `k`, or
 neither node to be in partition `k`. To accomplish this, we assign a 1
 in the edge column if one node is in partition `k` and the other node is not.
 
-| ![](https://latex.codecogs.com/gif.latex?%5Clarge%20x_%7Bik%7D) | x_j_k | edge (i,j) |
+| ![](https://latex.codecogs.com/gif.latex?%5Clarge%20x_%7Bik%7D) | 
+![](https://latex.codecogs.com/gif.latex?%5Clarge%20x_%7Bjk%7D) | edge (i,j) |
 | :---: | :---: | :---: |
 | 0 | 0 | 0 |
 | 0 | 1 | 1 |
