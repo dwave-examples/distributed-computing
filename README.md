@@ -42,7 +42,7 @@ The code implements a QUBO formulation of this problem, which is suitable for im
 
 The answer that we are looking for is a partition of the nodes in the graph, so
 we will assign a DQM variable for each node, i.e. variable 
-(https://latex.codecogs.com/gif.latex?%5Clarge%20x_%7Bik%7D)
+![](https://latex.codecogs.com/gif.latex?%5Clarge%20x_%7Bik%7D)
 denotes whether node `i` is in subset `k` or not.
 
 The objective function that we want should minimize the number of 
