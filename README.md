@@ -70,7 +70,7 @@ between nodes in each partition, and that will minimize the number of links
 between different partitions. Thus, for the entire graph, our objective
 function can be written as shown below:
 
-![eq1](https://latex.codecogs.com/gif.latex?objective%20%3D%20%5Cfrac%7B1%7D%7B2%7D%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%2Cj%5Cepsilon%20E%7D%20%7B%28x_%7Bik%7D%20&plus;%20x_%7Bjk%7D%20-%202%20x_%7Bik%7D%20x_%7Bjk%7D%29%7D)
+![eq1](https://latex.codecogs.com/gif.latex?%5Clarge%20objective%20%3D%20%5Cfrac%7B1%7D%7B2%7D%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%2Cj%5Cepsilon%20E%7D%28x_%7Bik%7D%20&plus;%20x_%7Bjk%7D%20-%202x_%7Bik%7D%20x_%7Bjk%7D%29)
 
 where we have divided by 2 to avoid double-counting when a pair of nodes
 is between partitions.
@@ -86,7 +86,7 @@ of nodes in the graph and `K` is the number of partitions.
 We represent this constraint mathematically using our chosen
 binary variables as follows:
 
-![eq2](https://latex.codecogs.com/gif.latex?%5Clarge%20constraint%20%3D%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Cleft%20%28%5Csum%5Climits_%7Bi%3D1%7D%20x_%7Bik%7D%20-%20%5Cfrac%7BN%7D%7BK%7D%20%5Cright%20%29%5E2)
+![eq2](https://latex.codecogs.com/gif.latex?%5Clarge%20constraint%20%3D%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Cleft%20%28%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7D%20x_%7Bik%7D%20-%20%5Cfrac%7BN%7D%7BK%7D%20%5Cright%20%29%5E2)
 
 This will have its minimum when each partition has `N`/`K`  nodes.
 
