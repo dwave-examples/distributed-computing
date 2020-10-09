@@ -62,22 +62,24 @@ in the edge column if one node is in partition `k` and the other node is not.
 | 1 | 0 | 1 |
 | 1 | 1 | 0 |
 
-From this table, we see that we can use the expression `x_i_k+x_j_k-2x_i_kx_j_k`
+From this table, we see that we can use the expression 
+![](https://latex.codecogs.com/gif.latex?%5Clarge%20x_%7Bik%7D%20&plus;%20x_%7Bjk%7D%20-%202%20x_%7Bik%7Dx_%7Bjk%7D)
 to calculate the edge column in our table. Note that if we use this expression,
 over all partitions and all edges, we will maximize the number of edges
 between nodes in each partition, and that will minimize the number of links
 between different partitions. Thus, for the entire graph, our objective
 function can be written as shown below:
 
-![zoib](https://latex.codecogs.com/gif.latex?objective%20%3D%20%5Cfrac%7B1%7D%7B2%7D%5Csum%5C limits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%2Cj%5Cepsilon%20E%7D%20%7B%28x_%7Bik%7D%20&plus;%20x_%7Bjk%7D%20-%202%20x_%7Bik%7D%20x_%7Bjk%7D%29%7D)
-objective = 0.5 * sum_partitions(k) sum_edges(E) `x_i_k+x_j_k-2x_i_kx_j_k`
+![](https://latex.codecogs.com/gif.latex?objective%20%3D%20%5Cfrac%7B1%7D%7B2%7D%5Csum%5C limits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%2Cj%5Cepsilon%20E%7D%20%7B%28x_%7Bik%7D%20&plus;%20x_%7Bjk%7D%20-%202%20x_%7Bik%7D%20x_%7Bjk%7D%29%7D)
 
 where we have divided by 2 to avoid double-counting when a pair of nodes
 is between partitions.
 
 Next we need to consider our constraint:  Each partition must have the
 same size.  We can measure the size of partition `k` by summing up our binary
-variables associated with partition `k` (for example, `x_1_k`, `x_2_k`, ...).  
+variables associated with partition `k` (for example, 
+![](https://latex.codecogs.com/gif.latex?%5Clarge%20x_%7B1k%7D),
+![](https://latex.codecogs.com/gif.latex?%5Clarge%20x_%7B2k%7D), ...).
 To ensure that all of the partitions have the same size, we enforce a
 constraint that partition `k` has size equal to `N`/`K`, where `N` is the number
 of nodes in the graph and `K` is the number of partitions.
