@@ -150,7 +150,7 @@ The quadratic biases also have contributions from both the objective and the
 constraints. The fourth term in the QUBO, from the objective, applies only
 to edges in the graph. The fifth term in the QUBO, from the constraints,
 applies to all nodes. Therefore, in the code, the quadratic bias calculations
-need to distiguish node pairs which are not edges from those which are edges.
+need to distinguish node pairs which are not edges from those which are edges.
 
 ## Code Specifics
 
