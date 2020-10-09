@@ -86,7 +86,7 @@ of nodes in the graph and `K` is the number of partitions.
 We represent this constraint mathematically using our chosen
 binary variables as follows:
 
-![eq2](https://latex.codecogs.com/gif.latex?%5Clarge%20constraint%20%3D%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Cleft%20%28%5Csum%5Climits_%7Bi%3D1%7Dlimits%5E%7BN%7D%20x_%7Bik%7D%20-%20%5Cfrac%7BN%7D%7BK%7D%20%5Cright%20%29%5E2)
+![eq2](https://latex.codecogs.com/gif.latex?%5Clarge%20constraint%20%3D%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Cleft%20%28%5Csum%5Climits_%7Bi%3D1%7D%20x_%7Bik%7D%20-%20%5Cfrac%7BN%7D%7BK%7D%20%5Cright%20%29%5E2)
 
 This will have its minimum when each partition has `N`/`K`  nodes.
 
