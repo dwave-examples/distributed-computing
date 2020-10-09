@@ -91,17 +91,15 @@ binary variables as follows:
 This will have its minimum when each partition has `N`/`K`  nodes.
 
 We bring the objective and constraints together by multiplying the 
-constraints by &gamma;, the [Lagrange parameter](https://en.wikipedia.org/wiki/Lagrange_multiplier).
+constraints by ![](https://latex.codecogs.com/gif.latex?%5Clarge%20%5Cgamma),
+ the [Lagrange parameter](https://en.wikipedia.org/wiki/Lagrange_multiplier).
 
 ![eq3](https://latex.codecogs.com/gif.latex?%5Clarge%20QUBO%20%3D%20%5Cfrac%7B1%7D%7B2%7D%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%2Cj%5Cepsilon%20E%7D%28x_%7Bik%7D%20&plus;%20x_%7Bjk%7D%20-%202x_%7Bik%7D%20x_%7Bjk%7D%29&plus;%20%5Cgamma%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Cleft%20%28%5Csum%5Climits_%7Bnodes%7D%20x_%7Bik%7D%20-%20%5Cfrac%7BN%7D%7BK%7D%20%5Cright%20%29%5E2)
 
 There are algebraic simplifications that can be performed on this sum.
 Multiplying the second term out, we find:
 
-QUBO = 0.5 * sum_partitions(k) sum_edges(E) `x_i_k+x_j_k-2x_i_kx_j_k`
- + &gamma; sum_partitions(k) ( sum_nodes(x_i_k) ) ^ 2
- + &gamma; sum_partitions(k) ( -2N/K sum_nodes(x_i_k) )
- + &gamma; sum_partitions(k) ( N^2 / K^2 )
+![eq4](https://latex.codecogs.com/gif.latex?%5Clarge%20QUBO%20%3D%20%5Cfrac%7B1%7D%7B2%7D%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%2Cj%5Cepsilon%20E%7D%28x_%7Bik%7D%20&plus;%20x_%7Bjk%7D%20-%202x_%7Bik%7D%20x_%7Bjk%7D%29&plus;%20%5Cgamma%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Cleft%20%28%5Csum%5Climits_%7Bnodes%7D%20x_%7Bik%7D%20%5Cright%20%29%5E2%20&plus;%20%5Cgamma%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%28-2%5Cfrac%7BN%7D%7Bk%7D%5Csum%5Climits_%7Bnodes%7D%20x_%7Bik%7D%29%20&plus;%20%5Cgamma%5Cfrac%7BN%5E2%7D%7BK%5E2%7D%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D)
 
 QUBO = (&gamma; N^2 / K) + 0.5 * sum_partitions(k) sum_edges(E) `x_i_k+x_j_k-2x_i_kx_j_k`
  + &gamma; sum_partitions(k) ( sum_nodes(x_i_k) ) ^ 2
