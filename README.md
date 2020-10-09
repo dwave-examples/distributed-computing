@@ -45,7 +45,7 @@ we will assign a DQM variable for each node, i.e. variable
 ![](https://latex.codecogs.com/gif.latex?%5Clarge%20x_%7Bik%7D)
 denotes whether node `i` is in subset `k` or not.
 
-The objective function that we want should minimize the number of 
+Our objective function should minimize the number of 
 links between different partitions. To
 count how many links between different partitions we have, 
 given a partition of the nodes (assignment of our binary variables), 
@@ -64,16 +64,18 @@ in the edge column if one node is in partition `k` and the other node is not.
 
 From this table, we see that we can use the expression 
 ![](https://latex.codecogs.com/gif.latex?%5Clarge%20x_%7Bik%7D%20&plus;%20x_%7Bjk%7D%20-%202%20x_%7Bik%7Dx_%7Bjk%7D)
-to calculate the edge column in our table. Note that if we use this expression,
-over all partitions and all edges, we will maximize the number of edges
-between nodes in each partition, and that will minimize the number of links
+to calculate the edge column in our table. 
+The minimum value of the expression is for partitions with as many as possible
+of the graph's edges found between nodes in those partitions. When we utilize
+this expression over all partitions and all edges, we will maximize the number 
+of intra-partition edges, and that will minimize the number of links
 between different partitions. Thus, for the entire graph, our objective
 function can be written as shown below:
 
 ![eq1](https://latex.codecogs.com/gif.latex?%5Clarge%20objective%20%3D%20%5Cfrac%7B1%7D%7B2%7D%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%2Cj%5Cepsilon%20E%7D%28x_%7Bik%7D%20&plus;%20x_%7Bjk%7D%20-%202x_%7Bik%7D%20x_%7Bjk%7D%29)
 
-where we have divided by 2 to avoid double-counting when a pair of nodes
-is between partitions.
+where we have divided by 2 to avoid double-counting when an edge's nodes are 
+in different partitions.
 
 Next we need to consider our constraint:  Each partition must have the
 same size.  We can measure the size of partition `k` by summing up our binary
@@ -101,7 +103,7 @@ Multiplying the second term out, we find:
 
 ![eq4](https://latex.codecogs.com/gif.latex?%5Clarge%20QUBO%20%3D%20%5Cfrac%7B1%7D%7B2%7D%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%2Cj%5Cepsilon%20E%7D%28x_%7Bik%7D%20&plus;%20x_%7Bjk%7D%20-%202x_%7Bik%7D%20x_%7Bjk%7D%29&plus;%20%5Cgamma%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Cleft%20%28%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7D%20x_%7Bik%7D%20%5Cright%20%29%5E2%20&plus;%20%5Cgamma%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%28-2%5Cfrac%7BN%7D%7Bk%7D%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7D%20x_%7Bik%7D%29%20&plus;%20%5Cgamma%5Cfrac%7BN%5E2%7D%7BK%5E2%7D%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D)
 
-and then the last term is the energy offset, which gives us:
+and then the constant (last term) is the energy offset, which gives us:
 
 ![eq5](https://latex.codecogs.com/gif.latex?%5Clarge%20QUBO%20%3D%20%5Cgamma%5Cfrac%7BN%5E2%7D%7BK%7D%20&plus;%20%5Cfrac%7B1%7D%7B2%7D%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%2Cj%5Cepsilon%20E%7D%28x_%7Bik%7D%20&plus;%20x_%7Bjk%7D%20-%202x_%7Bik%7D%20x_%7Bjk%7D%29&plus;%20%5Cgamma%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Cleft%20%28%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7D%20x_%7Bik%7D%20%5Cright%20%29%5E2%20&plus;%20%5Cgamma%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%28-2%5Cfrac%7BN%7D%7Bk%7D%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7D%20x_%7Bik%7D%29)
 
@@ -124,7 +126,7 @@ degree of node `i` in the graph. Our QUBO thus reduces to:
 ![eq9](https://latex.codecogs.com/gif.latex?%5Clarge%20QUBO%20%3D%20%5Cgamma%5Cfrac%7BN%5E2%7D%7BK%7D%20&plus;%20%5Cfrac%7B1%7D%7B2%7D%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7Ddegree%28i%29x_%7Bik%7D%20&plus;%20%5Cgamma%20%281%20-%202%5Cfrac%7BN%7D%7BK%7D%29%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7Dx_%7Bik%7D%20-%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%2Cj%5Cepsilon%20E%7Dx_%7Bik%7D%20x_%7Bjk%7D%20&plus;%202%5Cgamma%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7D%20%5Csum%5Climits_%7Bj%3Ei%7D%5Climits%5E%7BN%7D%20x_%7Bik%7Dx_%7Bjk%7D)
 
 Leap's DQM solver accepts problems expressed in terms of an
-Ocean [DiscreteQuadraticModel](https://docs.ocean.dwavesys.com/en/latest/docs_dimod/reference/dqm.html) object.
+Ocean [DiscreteQuadraticModel](https://docs.ocean.dwavesys.com/en/stable/docs_dimod/reference/dqm.html) object.
 The DiscreteQuadraticModel has two types of bias:
 
 * linear biases

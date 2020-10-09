@@ -43,8 +43,6 @@ for p in G.nodes:
 
 constraint_const = lagrange * (1 - (2 * num_nodes / num_partitions))
 for p in G.nodes:
-    # Compose the linear term as a sum of the constraint contribution and
-    # the objective contribution
     linear_term = constraint_const + (0.5 * np.ones(num_partitions) * G.degree[p])
     dqm.set_linear(p, linear_term)
 
