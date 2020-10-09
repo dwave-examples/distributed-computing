@@ -123,16 +123,6 @@ degree of node `i` in the graph. Our QUBO thus reduces to:
 
 ![eq9](https://latex.codecogs.com/gif.latex?%5Clarge%20QUBO%20%3D%20%5Cgamma%5Cfrac%7BN%5E2%7D%7BK%7D%20&plus;%20%5Cfrac%7B1%7D%7B2%7D%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7Ddegree%28i%29x_%7Bik%7D%20&plus;%20%5Cgamma%20%281%20-%202%5Cfrac%7BN%7D%7BK%7D%29%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7Dx_%7Bik%7D%20-%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%2Cj%5Cepsilon%20E%7Dx_%7Bik%7D%20x_%7Bjk%7D%20&plus;%202%5Cgamma%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7D%20%5Csum%5Climits_%7Bj%3Ei%7D%5Climits%5E%7BN%7D%20x_%7Bik%7Dx_%7Bjk%7D)
 
-In the code, we create the Q matrix for this QUBO as a dictionary iteratively,
-looping over the edges and nodes in our graph just as we see in the summation
-of our QUBO expression.
-
-This demo generates an Erdos-Renyi random graph using the `networkx` package
-for our problem instance [[1]](#1). There are three parameters to be set by the user
-in this code:  chain strength, number of reads, and $\gamma$.  Since this is a
-relatively large problem, we set a large number of reads (`num_reads = 1000`).
-ZOIB
-## Code Overview
 Leap's DQM solver accepts problems expressed in terms of an
 Ocean [DiscreteQuadraticModel](https://docs.ocean.dwavesys.com/en/latest/docs_dimod/reference/dqm.html) object.
 The DiscreteQuadraticModel has two types of bias:
@@ -142,30 +132,25 @@ The DiscreteQuadraticModel has two types of bias:
 
 We want to define these two biases so that a low-energy solution found by the DQM solver will correspond to a solution of the graph partitioning problem.
 
-The QUBO has two parts: the objective, and the constraints.
-The objective consists of terms which, for each edge in the graph, favor
-solutions in which both nodes are in the same partition. This penalizes node
-pairs which are in different partitions, and thus we minimize the number
-of links between partitions.
-The constraints consist of terms which constrain each partition to have the
-same number of nodes; this number is the number of nodes divided by the
-number of partitions.
+The QUBO has five terms. The first term is the energy offset, as mentioned
+earlier. The second and third terms are linear biases, and the fourth and
+fifth terms are quadratic biases.
 
 ### Linear Biases
 
 The linear biases have contributions from both the objective and the
-constraints. The contribution from the objective reduces to an expression
-involving the degree of each node in the graph.
-The contribution from the constraints is a constant for all
-entries, and it is included so that the overall energy computation yields
-a sensible result.
+constraints. The contribution from the objective, the second term in the QUBO,
+ reduced earlier to an expression involving the degree of each node in the 
+graph. The contribution from the constraints, the third term in the QUBO,
+is a constant for all nodes and partitions.
 
 ### Quadratic Biases
 
 The quadratic biases also have contributions from both the objective and the
-constraints, and they are summed up in the code. Note that the code needs
-to add terms from node pairs which don't have edges between them; that is
-done in a separate loop.
+constraints. The fourth term in the QUBO, from the objective, applies only
+to edges in the graph. The fifth term in the QUBO, from the constraints,
+applies to all nodes. Therefore, in the code, the quadratic bias calculations
+need to distiguish node pairs which are not edges from those which are edges.
 
 ## Code Specifics
 
