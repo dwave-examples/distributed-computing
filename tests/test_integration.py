@@ -22,19 +22,15 @@ project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 class IntegrationTests(unittest.TestCase):
 
-    def test_sudoku(self):
+    def test_graph_partitioning(self):
         example_file = os.path.join(project_dir, 'graph_partitioning.py')
         output = subprocess.check_output([sys.executable, example_file])
         output = str(output).upper()
         if os.getenv('DEBUG_OUTPUT'):
             print("Example output \n" + output)
 
-        with self.subTest(msg="Verify if output contains valid solution energy \n"):
-            self.assertIn("Solution energy with offset included:  97.0".upper(), output)
         with self.subTest(msg="Verify if Counts in each partition is correct \n"):
             self.assertIn("Counts in each partition:  [6. 6. 6. 6. 6.]".upper(), output)
-        with self.subTest(msg="Verify if Number of links between partitions \n"):
-            self.assertIn("Number of links between partitions:  97".upper(), output)
 
 if __name__ == '__main__':
     unittest.main()
