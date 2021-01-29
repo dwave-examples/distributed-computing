@@ -59,7 +59,7 @@ sampler = LeapHybridDQMSampler()
 
 # Solve the problem using the DQM solver
 offset = lagrange * num_nodes * num_nodes / num_partitions
-sampleset = sampler.sample_dqm(dqm)
+sampleset = sampler.sample_dqm(dqm, label='Example - Graph Partitioning DQM')
 
 # get the first solution
 sample = sampleset.first.sample
