@@ -72,7 +72,7 @@ function can be written as shown below:
 
 <p align=center>
 <img style="border:2px solid white" 
-src="https://latex.codecogs.com/svg.latex?\large\pagecolor{white}\text{Objective}=\frac{1}{2}\sum_{k=1}^K\sum_{(i,j)\in E}\left(x_{ik}+x_{jk}-2x_{ik}x_{jk}\right)">
+src="https://latex.codecogs.com/svg.latex?\large\pagecolor{white}\text{Objective}=\frac{1}{2}\sum_{k=1}^K\sum_{(i,j)\in\,E}\left(x_{ik}+x_{jk}-2x_{ik}x_{jk}\right)">
 </p>
 
 where we have divided by 2 to avoid double-counting when an edge's nodes are 
