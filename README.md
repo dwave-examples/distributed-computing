@@ -2,7 +2,7 @@
 
 A demo of Graph Partitioning using Leap's hybrid discrete quadratic model (DQM) solver.
 
-![Original Plot](readme_imgs/not_partition_yet.png)
+<img style="filter:invert(1)" alt="Original Plot" src="./readme_imgs/not_partition_yet.png">
 
 The figure above shows the graph we want to partition.
 
@@ -30,7 +30,7 @@ Number of links between partitions:  67
 
 and when the solution is drawn:
 
-![Partition Plot](readme_imgs/partition.png)
+<img style="filter:invert(1)" alt="Partition Plot" src="./readme_imgs/partition.png">
 
 we see that the partitions have equal size. The code counts the number of links
 between partitions.
