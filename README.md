@@ -115,25 +115,25 @@ Multiplying the second term out, we find:
 src="https://latex.codecogs.com/svg.latex?\begin{align*}\large\text{QUBO}=\frac{1}{2}\sum_{k=1}^K\sum_{(i,j)\in\,E}\left(x_{ik}+x_{jk}-2x_{ik}x_{jk}\right)+\gamma\sum_{k=1}^K\left(\sum_{i=1}^Nx_{ik}\right)^2+\gamma\sum_{k=1}^K\left(-2\frac{N}{K}\sum_{i=1}^Nx_{ik}\right)+\gamma\sum_{k=1}^K\frac{N^2}{K^2}\end{align*}\">
 </p>
 
-and then the constant (last term) is the energy offset, which gives us:
+and then the constant (last term) is the energy offset that can be ignored, which gives us:
 
 <p align="left">
 <img style="filter:invert(1)"
-src="https://latex.codecogs.com/svg.latex?\begin{align*}\large\text{QUBO}=\gamma\frac{N^2}{K}+\frac{1}{2}\sum_{k=1}^K\sum_{(i,j)\in\,E}\left(x_{ik}+x_{jk}-2x_{ik}x_{jk}\right)+\gamma\sum_{k=1}^K\left(\sum_{i=1}^Nx_{ik}\right)^2+\gamma\sum_{k=1}^K\left(-2\frac{N}{K}\sum_{i=1}^Nx_{ik}\right)\end{align*}\">
+src="https://latex.codecogs.com/svg.latex?\begin{align*}\large\text{QUBO}=\frac{1}{2}\sum_{k=1}^K\sum_{(i,j)\in\,E}\left(x_{ik}+x_{jk}-2x_{ik}x_{jk}\right)+\gamma\sum_{k=1}^K\left(\sum_{i=1}^Nx_{ik}\right)^2+\gamma\sum_{k=1}^K\left(-2\frac{N}{K}\sum_{i=1}^Nx_{ik}\right)\end{align*}\">
 </p>
 
 and expanding the squared sum,
 
 <p align="left">
 <img style="filter:invert(1)"
-src="https://latex.codecogs.com/svg.latex?\begin{align*}\large\text{QUBO}=\gamma\frac{N^2}{K}+\frac{1}{2}\sum_{k=1}^K\sum_{(i,j)\in\,E}\left(x_{ik}+x_{jk}-2x_{ik}x_{jk}\right)+\gamma\sum_{k=1}^K\left(\sum_{i=1}^Nx_{ik}+2\sum_{i=1}^N\sum_{j>i}^Nx_{ik}x_{jk}\right)+\gamma\sum_{k=1}^K\left(-2\frac{N}{K}\sum_{i=1}^Nx_{ik}\right)\end{align*}\">
+src="https://latex.codecogs.com/svg.latex?\begin{align*}\large\text{QUBO}=\frac{1}{2}\sum_{k=1}^K\sum_{(i,j)\in\,E}\left(x_{ik}+x_{jk}-2x_{ik}x_{jk}\right)+\gamma\sum_{k=1}^K\left(\sum_{i=1}^Nx_{ik}+2\sum_{i=1}^N\sum_{j>i}^Nx_{ik}x_{jk}\right)+\gamma\sum_{k=1}^K\left(-2\frac{N}{K}\sum_{i=1}^Nx_{ik}\right)\end{align*}\">
 </p>
 
 and we can merge the linear terms,
 
 <p align="left">
 <img style="filter:invert(1)"
-src="https://latex.codecogs.com/svg.latex?\begin{align*}\large\text{QUBO}=\gamma\frac{N^2}{K}+\frac{1}{2}\sum_{k=1}^K\sum_{(i,j)\in\,E}\left(x_{ik}+x_{jk}-2x_{ik}x_{jk}\right)+\gamma\big(1-2\frac{N}{K}\big)\sum_{k=1}^K\sum_{i=1}^Nx_{ik}+2\gamma\sum_{k=1}^K\sum_{i=1}^N\sum_{j>i}^Nx_{ik}x_{jk}\end{align*}\">
+src="https://latex.codecogs.com/svg.latex?\begin{align*}\large\text{QUBO}=\frac{1}{2}\sum_{k=1}^K\sum_{(i,j)\in\,E}\left(x_{ik}+x_{jk}-2x_{ik}x_{jk}\right)+\gamma\big(1-2\frac{N}{K}\big)\sum_{k=1}^K\sum_{i=1}^Nx_{ik}+2\gamma\sum_{k=1}^K\sum_{i=1}^N\sum_{j>i}^Nx_{ik}x_{jk}\end{align*}\">
 </p>
 
 
@@ -141,7 +141,7 @@ and we can move the quadratic terms together,
 
 <p align="left">
 <img style="filter:invert(1)"
-src="https://latex.codecogs.com/svg.latex?\begin{align*}\large\text{QUBO}=\gamma\frac{N^2}{K}+\frac{1}{2}\sum_{k=1}^K\sum_{(i,j)\in\,E}\left(x_{ik}+x_{jk}\right)+\gamma\big(1-2\frac{N}{K}\big)\sum_{k=1}^K\sum_{i=1}^Nx_{ik}-\sum_{k=1}^K\sum_{(i,j)\in\,E}x_{ik}x_{jk}+2\gamma\sum_{k=1}^K\sum_{i=1}^N\sum_{j>i}^Nx_{ik}x_{jk}\end{align*}\">
+src="https://latex.codecogs.com/svg.latex?\begin{align*}\large\text{QUBO}=\frac{1}{2}\sum_{k=1}^K\sum_{(i,j)\in\,E}\left(x_{ik}+x_{jk}\right)+\gamma\big(1-2\frac{N}{K}\big)\sum_{k=1}^K\sum_{i=1}^Nx_{ik}-\sum_{k=1}^K\sum_{(i,j)\in\,E}x_{ik}x_{jk}+2\gamma\sum_{k=1}^K\sum_{i=1}^N\sum_{j>i}^Nx_{ik}x_{jk}\end{align*}\">
 </p>
 
 Now, the second term in the QUBO can be simplified if we realize that variables such as <img align="center" style="filter:invert(1)" src="https://latex.codecogs.com/svg.latex?\small\,x_{ik}\"> will
@@ -151,7 +151,7 @@ degree of node `i` in the graph. Our QUBO thus reduces to:
 
 <p align="left">
 <img style="filter:invert(1)"
-src="https://latex.codecogs.com/svg.latex?\begin{align*}\large\text{QUBO}=\gamma\frac{N^2}{K}+\frac{1}{2}\sum_{k=1}^K\sum_{i=1}^N\text{deg}(i)\,x_{ik}+\gamma\big(1-2\frac{N}{K}\big)\sum_{k=1}^K\sum_{i=1}^Nx_{ik}-\sum_{k=1}^K\sum_{(i,j)\in\,E}x_{ik}x_{jk}+2\gamma\sum_{k=1}^K\sum_{i=1}^N\sum_{j>i}^Nx_{ik}x_{jk}\end{align*}\">
+src="https://latex.codecogs.com/svg.latex?\begin{align*}\large\text{QUBO}=\frac{1}{2}\sum_{k=1}^K\sum_{i=1}^N\text{deg}(i)\,x_{ik}+\gamma\big(1-2\frac{N}{K}\big)\sum_{k=1}^K\sum_{i=1}^Nx_{ik}-\sum_{k=1}^K\sum_{(i,j)\in\,E}x_{ik}x_{jk}+2\gamma\sum_{k=1}^K\sum_{i=1}^N\sum_{j>i}^Nx_{ik}x_{jk}\end{align*}\">
 </p>
 
 Leap's DQM solver accepts problems expressed in terms of an
