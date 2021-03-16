@@ -53,7 +53,7 @@ four possibilities. We want either both nodes to be in partition `k`, or
 neither node to be in partition `k`. To accomplish this, we assign a 1
 in the edge column if one node is in partition `k` and the other node is not.
 
-| <img align=center style="filter:invert(1)" src="https://latex.codecogs.com/svg.latex?x_{ik}\"> | <img align=center style="filter:invert(1)" src="https://latex.codecogs.com/svg.latex?x_{jk}\"> | <img align=center style="filter:invert(1)" src="https://latex.codecogs.com/svg.latex?\text{edge}(i,j)">|
+| <img style="filter:invert(1)" src="https://latex.codecogs.com/svg.latex?\small\,x_{ik}\"> | <img align=center style="filter:invert(1)" src="https://latex.codecogs.com/svg.latex?\small\,x_{jk}\"> | <img align=center style="filter:invert(1)" src="https://latex.codecogs.com/svg.latex?\text{edge}(i,j)">|
 | :---: | :---: | :---: |
 | 0 | 0 | 0 |
 | 0 | 1 | 1 |
@@ -81,7 +81,7 @@ in different partitions.
 Next we need to consider our constraint:  Each partition must have the
 same size.  We can measure the size of partition `k` by summing up our binary
 variables associated with partition `k`, i.e. 
-<img align=center style="filter:invert(1)" src="https://latex.codecogs.com/svg.latex?\small(x_{1k}+x_{2k}+\ldots)">.
+<img align=center style="filter:invert(1)" src="https://latex.codecogs.com/svg.latex?\small(x_{1k}+x_{2k}+\ldots).">
 To ensure that all of the partitions have the same size, we enforce a
 constraint that partition `k` has size equal to `N`/`K`, where `N` is the number
 of nodes in the graph and `K` is the number of partitions.
