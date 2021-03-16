@@ -40,7 +40,7 @@ As noted earlier, the Graph Partitioning problem is in the [D-Wave Collection of
 
 The code implements a QUBO formulation of this problem, which is suitable for implementing on the DQM solver.
 
-The answer that we are looking for is a partition of the nodes in the graph, so we will assign a DQM variable for each node, i.e. variable <img align=center style="filter:invert(1)" src="https://latex.codecogs.com/svg.latex?\small\,x_{ik}\">
+The answer that we are looking for is a partition of the nodes in the graph, so we will assign a DQM variable for each node, i.e. variable <img align="center" style="filter:invert(1)" src="https://latex.codecogs.com/svg.latex?\small\,x_{ik}\">
 denotes whether node `i` is in subset `k` or not.
 
 Our objective function should minimize the number of 
@@ -53,7 +53,7 @@ four possibilities. We want either both nodes to be in partition `k`, or
 neither node to be in partition `k`. To accomplish this, we assign a 1
 in the edge column if one node is in partition `k` and the other node is not.
 
-| <img style="filter:invert(1)" src="https://latex.codecogs.com/svg.latex?\small\,x_{ik}\"> | <img align=center style="filter:invert(1)" src="https://latex.codecogs.com/svg.latex?\small\,x_{jk}\"> | <img align=center style="filter:invert(1)" src="https://latex.codecogs.com/svg.latex?\text{edge}(i,j)">|
+| <img style="filter:invert(1)" src="https://latex.codecogs.com/svg.latex?\small\,x_{ik}\"> | <img align="center" style="filter:invert(1)" src="https://latex.codecogs.com/svg.latex?\small\,x_{jk}\"> | <img align="center" style="filter:invert(1)" src="https://latex.codecogs.com/svg.latex?\text{edge}(i,j)">|
 | :---: | :---: | :---: |
 | 0 | 0 | 0 |
 | 0 | 1 | 1 |
@@ -61,7 +61,7 @@ in the edge column if one node is in partition `k` and the other node is not.
 | 1 | 1 | 0 |
 
 
-From this table, we see that we can use the expression <img align=center style="filter:invert(1)" src="https://latex.codecogs.com/svg.latex?\small\,x_{ik}+x_{jk}-2x_{ik}x_{jk}\"> to calculate the edge column in our table.
+From this table, we see that we can use the expression <img align="center" style="filter:invert(1)" src="https://latex.codecogs.com/svg.latex?\small\,x_{ik}+x_{jk}-2x_{ik}x_{jk}\"> to calculate the edge column in our table.
 The minimum value of the expression is for partitions with as many as possible
 of the graph's edges found between nodes in those partitions. When we utilize
 this expression over all partitions and all edges, we will maximize the number 
@@ -69,9 +69,9 @@ of intra-partition edges, and that will minimize the number of links
 between different partitions. Thus, for the entire graph, our objective
 function can be written as shown below:
 
-<p align=center>
+<p align="center">
 <img style="filter:invert(1)" 
-src="https://latex.codecogs.com/svg.latex?\large\text{Objective}=\frac{1}{2}\sum_{k=1}^K\sum_{(i,j)\in\,E}\left(x_{ik}+x_{jk}-2x_{ik}x_{jk}\right)">
+src="https://latex.codecogs.com/svg.latex?\begin{align*}\large\text{Objective}=\frac{1}{2}\sum_{k=1}^K\sum_{(i,j)\in\,E}\left(x_{ik}+x_{jk}-2x_{ik}x_{jk}\right)\end{align*}\">
 
 </p>
 
@@ -81,7 +81,7 @@ in different partitions.
 Next we need to consider our constraint:  Each partition must have the
 same size.  We can measure the size of partition `k` by summing up our binary
 variables associated with partition `k`, i.e. 
-<img align=center style="filter:invert(1)" src="https://latex.codecogs.com/svg.latex?\small(x_{1k}+x_{2k}+\ldots).">
+<img align="center" style="filter:invert(1)" src="https://latex.codecogs.com/svg.latex?\small(x_{1k}+x_{2k}+\ldots).">
 To ensure that all of the partitions have the same size, we enforce a
 constraint that partition `k` has size equal to `N`/`K`, where `N` is the number
 of nodes in the graph and `K` is the number of partitions.
@@ -89,19 +89,19 @@ We represent this constraint mathematically using our chosen
 binary variables as follows:
 
 
-<p align=center>
+<p align="center">
 <img style="filter:invert(1)"
-src="https://latex.codecogs.com/svg.latex?\large\text{Constraint}=\sum_{k=1}^K\left(\sum_{i=1}^Nx_{ik}-\frac{N}{K}\right)^2">
+src="https://latex.codecogs.com/svg.latex?\begin{align*}\large\text{Constraint}=\sum_{k=1}^K\left(\sum_{i=1}^Nx_{ik}-\frac{N}{K}\right)^2\end{align*}\">
 </p>
 
 This will have its minimum when each partition has `N`/`K`  nodes.
 
 We bring the objective and constraints together by multiplying the 
-constraints by <img align=center style="filter:invert(1)" src="https://latex.codecogs.com/svg.latex?\small\gamma">,
+constraints by <img align="center" style="filter:invert(1)" src="https://latex.codecogs.com/svg.latex?\small\gamma">,
  the [Lagrange parameter](https://en.wikipedia.org/wiki/Lagrange_multiplier).
 
 
-<p align=left>
+<p align="left">
 <img style="filter:invert(1)"
 src="https://latex.codecogs.com/svg.latex?\large\text{QUBO}=\frac{1}{2}\sum_{k=1}^K\sum_{(i,j)\in\,E}\left(x_{ik}+x_{jk}-2x_{ik}x_{jk}\right)+\gamma\sum_{k=1}^K\left(\sum_{i=1}^Nx_{ik}-\frac{N}{K}\right)^2">
 </p>
@@ -110,48 +110,48 @@ There are algebraic simplifications that can be performed on this sum.
 Multiplying the second term out, we find:
 
 
-<p align=left>
+<p align="left">
 <img style="filter:invert(1)"
-src="https://latex.codecogs.com/svg.latex?\large\begin{align*}\text{QUBO}=\frac{1}{2}\sum_{k=1}^K\sum_{(i,j)\in\,E}\left(x_{ik}+x_{jk}-2x_{ik}x_{jk}\right)+\gamma\sum_{k=1}^K\left(\sum_{i=1}^Nx_{ik}\right)^2+\gamma\sum_{k=1}^K\left(-2\frac{N}{K}\sum_{i=1}^Nx_{ik}\right)+\gamma\sum_{k=1}^K\frac{N^2}{K^2}\end{align*}\">
+src="https://latex.codecogs.com/svg.latex?\begin{align*}\large\text{QUBO}=\frac{1}{2}\sum_{k=1}^K\sum_{(i,j)\in\,E}\left(x_{ik}+x_{jk}-2x_{ik}x_{jk}\right)+\gamma\sum_{k=1}^K\left(\sum_{i=1}^Nx_{ik}\right)^2+\gamma\sum_{k=1}^K\left(-2\frac{N}{K}\sum_{i=1}^Nx_{ik}\right)+\gamma\sum_{k=1}^K\frac{N^2}{K^2}\end{align*}\">
 </p>
 
 and then the constant (last term) is the energy offset, which gives us:
 
-<p align=left>
+<p align="left">
 <img style="filter:invert(1)"
-src="https://latex.codecogs.com/svg.latex?\large\begin{align*}\text{QUBO}=\gamma\frac{N^2}{K}+\frac{1}{2}\sum_{k=1}^K\sum_{(i,j)\in\,E}\left(x_{ik}+x_{jk}-2x_{ik}x_{jk}\right)+\gamma\sum_{k=1}^K\left(\sum_{i=1}^Nx_{ik}\right)^2+\gamma\sum_{k=1}^K\left(-2\frac{N}{K}\sum_{i=1}^Nx_{ik}\right)\end{align*}\">
+src="https://latex.codecogs.com/svg.latex?\begin{align*}\large\text{QUBO}=\gamma\frac{N^2}{K}+\frac{1}{2}\sum_{k=1}^K\sum_{(i,j)\in\,E}\left(x_{ik}+x_{jk}-2x_{ik}x_{jk}\right)+\gamma\sum_{k=1}^K\left(\sum_{i=1}^Nx_{ik}\right)^2+\gamma\sum_{k=1}^K\left(-2\frac{N}{K}\sum_{i=1}^Nx_{ik}\right)\end{align*}\">
 </p>
 
 and expanding the squared sum,
 
-<p align=left>
+<p align="left">
 <img style="filter:invert(1)"
-src="https://latex.codecogs.com/svg.latex?\large\begin{align*}\text{QUBO}=\gamma\frac{N^2}{K}+\frac{1}{2}\sum_{k=1}^K\sum_{(i,j)\in\,E}\left(x_{ik}+x_{jk}-2x_{ik}x_{jk}\right)+\gamma\sum_{k=1}^K\left(\sum_{i=1}^Nx_{ik}+2\sum_{i=1}^N\sum_{j>i}^Nx_{ik}x_{jk}\right)+\gamma\sum_{k=1}^K\left(-2\frac{N}{K}\sum_{i=1}^Nx_{ik}\right)\end{align*}\">
+src="https://latex.codecogs.com/svg.latex?\begin{align*}\large\text{QUBO}=\gamma\frac{N^2}{K}+\frac{1}{2}\sum_{k=1}^K\sum_{(i,j)\in\,E}\left(x_{ik}+x_{jk}-2x_{ik}x_{jk}\right)+\gamma\sum_{k=1}^K\left(\sum_{i=1}^Nx_{ik}+2\sum_{i=1}^N\sum_{j>i}^Nx_{ik}x_{jk}\right)+\gamma\sum_{k=1}^K\left(-2\frac{N}{K}\sum_{i=1}^Nx_{ik}\right)\end{align*}\">
 </p>
 
 and we can merge the linear terms,
 
-<p align=left>
+<p align="left">
 <img style="filter:invert(1)"
-src="https://latex.codecogs.com/svg.latex?\large\begin{align*}\text{QUBO}=\gamma\frac{N^2}{K}+\frac{1}{2}\sum_{k=1}^K\sum_{(i,j)\in\,E}\left(x_{ik}+x_{jk}-2x_{ik}x_{jk}\right)+\gamma\big(1-2\frac{N}{K}\big)\sum_{k=1}^K\sum_{i=1}^Nx_{ik}+2\gamma\sum_{k=1}^K\sum_{i=1}^N\sum_{j>i}^Nx_{ik}x_{jk}\end{align*}\">
+src="https://latex.codecogs.com/svg.latex?\begin{align*}\large\text{QUBO}=\gamma\frac{N^2}{K}+\frac{1}{2}\sum_{k=1}^K\sum_{(i,j)\in\,E}\left(x_{ik}+x_{jk}-2x_{ik}x_{jk}\right)+\gamma\big(1-2\frac{N}{K}\big)\sum_{k=1}^K\sum_{i=1}^Nx_{ik}+2\gamma\sum_{k=1}^K\sum_{i=1}^N\sum_{j>i}^Nx_{ik}x_{jk}\end{align*}\">
 </p>
 
 
 and we can move the quadratic terms together,
 
-<p align=left>
+<p align="left">
 <img style="filter:invert(1)"
-src="https://latex.codecogs.com/svg.latex?\large\begin{align*}\text{QUBO}=\gamma\frac{N^2}{K}+\frac{1}{2}\sum_{k=1}^K\sum_{(i,j)\in\,E}\left(x_{ik}+x_{jk}\right)+\gamma\big(1-2\frac{N}{K}\big)\sum_{k=1}^K\sum_{i=1}^Nx_{ik}-\sum_{k=1}^K\sum_{(i,j)\in\,E}x_{ik}x_{jk}+2\gamma\sum_{k=1}^K\sum_{i=1}^N\sum_{j>i}^Nx_{ik}x_{jk}\end{align*}\">
+src="https://latex.codecogs.com/svg.latex?\begin{align*}\large\text{QUBO}=\gamma\frac{N^2}{K}+\frac{1}{2}\sum_{k=1}^K\sum_{(i,j)\in\,E}\left(x_{ik}+x_{jk}\right)+\gamma\big(1-2\frac{N}{K}\big)\sum_{k=1}^K\sum_{i=1}^Nx_{ik}-\sum_{k=1}^K\sum_{(i,j)\in\,E}x_{ik}x_{jk}+2\gamma\sum_{k=1}^K\sum_{i=1}^N\sum_{j>i}^Nx_{ik}x_{jk}\end{align*}\">
 </p>
 
-Now, the second term in the QUBO can be simplified if we realize that variables such as <img align=center style="filter:invert(1)" src="https://latex.codecogs.com/svg.latex?\small\,x_{ik}\"> will
+Now, the second term in the QUBO can be simplified if we realize that variables such as <img align="center" style="filter:invert(1)" src="https://latex.codecogs.com/svg.latex?\small\,x_{ik}\"> will
 appear as many times as node `i` appears in the graph, which is the
 degree of node `i` in the graph. Our QUBO thus reduces to:
 
 
-<p align=left>
+<p align="left">
 <img style="filter:invert(1)"
-src="https://latex.codecogs.com/svg.latex?\large\begin{align*}\text{QUBO}=\gamma\frac{N^2}{K}+\frac{1}{2}\sum_{k=1}^K\sum_{i=1}^N\text{deg}(i)\,x_{ik}+\gamma\big(1-2\frac{N}{K}\big)\sum_{k=1}^K\sum_{i=1}^Nx_{ik}-\sum_{k=1}^K\sum_{(i,j)\in\,E}x_{ik}x_{jk}+2\gamma\sum_{k=1}^K\sum_{i=1}^N\sum_{j>i}^Nx_{ik}x_{jk}\end{align*}\">
+src="https://latex.codecogs.com/svg.latex?\begin{align*}\large\text{QUBO}=\gamma\frac{N^2}{K}+\frac{1}{2}\sum_{k=1}^K\sum_{i=1}^N\text{deg}(i)\,x_{ik}+\gamma\big(1-2\frac{N}{K}\big)\sum_{k=1}^K\sum_{i=1}^Nx_{ik}-\sum_{k=1}^K\sum_{(i,j)\in\,E}x_{ik}x_{jk}+2\gamma\sum_{k=1}^K\sum_{i=1}^N\sum_{j>i}^Nx_{ik}x_{jk}\end{align*}\">
 </p>
 
 Leap's DQM solver accepts problems expressed in terms of an
