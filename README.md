@@ -33,9 +33,11 @@ and when the solution is drawn:
 ![Partition Plot](readme_imgs/partition.png)
 
 we see that the partitions have equal size. The code counts the number of links
-between partitions.
+between partitions. An image showing the partitions is saved as
+`graph_partition_result.png`.
 
 ## Code Overview
+
 As noted earlier, the Graph Partitioning problem is in the [D-Wave Collection of Examples](https://github.com/dwave-examples/graph-partitioning), but there it is formulated for 2 partitions. In this repo, we're going to use the D-Wave DQM solver, and the formulation will be for `K` partitions.
 
 The code implements a QUBO formulation of this problem, which is suitable for implementing on the DQM solver.
