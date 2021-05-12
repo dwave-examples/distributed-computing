@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from random import random
+from collections import defaultdict
 
 import networkx as nx
 import numpy as np
@@ -77,7 +78,7 @@ sample = sampleset.first.sample
 energy = sampleset.first.energy
 
 # Process sample
-partitions = {i:[] for i in range(num_partitions)}
+partitions = defaultdict(list)
 for key, val in sample.items():
     partitions[val].append(key)
 
