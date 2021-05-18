@@ -2,7 +2,7 @@
 
 A demo of Graph Partitioning using Leap's hybrid discrete quadratic model (DQM) solver.
 
-![Original Plot](readme_imgs/not_partition_yet.png)
+<img style="filter:invert(1)" alt="Original Plot" src="./readme_imgs/not_partition_yet.png">
 
 The figure above shows the graph we want to partition.
 
@@ -30,7 +30,7 @@ Number of links between partitions:  67
 
 and when the solution is drawn:
 
-![Partition Plot](readme_imgs/partition.png)
+<img style="filter:invert(1)" alt="Partition Plot" src="./readme_imgs/partition.png">
 
 we see that the partitions have equal size. The code counts the number of links
 between partitions. An image showing the partitions is saved as
@@ -42,9 +42,7 @@ As noted earlier, the Graph Partitioning problem is in the [D-Wave Collection of
 
 The code implements a QUBO formulation of this problem, which is suitable for implementing on the DQM solver.
 
-The answer that we are looking for is a partition of the nodes in the graph, so
-we will assign a DQM variable for each node, i.e. variable 
-![](https://latex.codecogs.com/gif.latex?%5Clarge%20x_%7Bik%7D)
+The answer that we are looking for is a partition of the nodes in the graph, so we will assign a DQM variable for each node, i.e. variable <img align="center" style="filter:invert(1)" src="https://latex.codecogs.com/svg.latex?\small\,x_{ik}\">
 denotes whether node `i` is in subset `k` or not.
 
 Our objective function should minimize the number of 
@@ -57,16 +55,15 @@ four possibilities. We want either both nodes to be in partition `k`, or
 neither node to be in partition `k`. To accomplish this, we assign a 1
 in the edge column if one node is in partition `k` and the other node is not.
 
-| ![](https://latex.codecogs.com/gif.latex?%5Clarge%20x_%7Bik%7D) | ![](https://latex.codecogs.com/gif.latex?%5Clarge%20x_%7Bjk%7D) | edge (i,j) |
+| <img style="filter:invert(1)" src="https://latex.codecogs.com/svg.latex?\small\,x_{ik}\"> | <img align="center" style="filter:invert(1)" src="https://latex.codecogs.com/svg.latex?\small\,x_{jk}\"> | <img align="center" style="filter:invert(1)" src="https://latex.codecogs.com/svg.latex?\text{edge}(i,j)">|
 | :---: | :---: | :---: |
 | 0 | 0 | 0 |
 | 0 | 1 | 1 |
 | 1 | 0 | 1 |
 | 1 | 1 | 0 |
 
-From this table, we see that we can use the expression 
-![](https://latex.codecogs.com/gif.latex?%5Clarge%20x_%7Bik%7D%20&plus;%20x_%7Bjk%7D%20-%202%20x_%7Bik%7Dx_%7Bjk%7D)
-to calculate the edge column in our table. 
+
+From this table, we see that we can use the expression <img align="center" style="filter:invert(1)" src="https://latex.codecogs.com/svg.latex?\small\,x_{ik}+x_{jk}-2x_{ik}x_{jk}\"> to calculate the edge column in our table.
 The minimum value of the expression is for partitions with as many as possible
 of the graph's edges found between nodes in those partitions. When we utilize
 this expression over all partitions and all edges, we will maximize the number 
@@ -74,58 +71,90 @@ of intra-partition edges, and that will minimize the number of links
 between different partitions. Thus, for the entire graph, our objective
 function can be written as shown below:
 
-![eq1](https://latex.codecogs.com/gif.latex?%5Clarge%20objective%20%3D%20%5Cfrac%7B1%7D%7B2%7D%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%2Cj%5Cepsilon%20E%7D%28x_%7Bik%7D%20&plus;%20x_%7Bjk%7D%20-%202x_%7Bik%7D%20x_%7Bjk%7D%29)
+<p align="center">
+<img style="filter:invert(1)" 
+src="https://latex.codecogs.com/svg.latex?\begin{align*}\large\text{Objective}=\frac{1}{2}\sum_{k=1}^K\sum_{(i,j)\in\,E}\left(x_{ik}+x_{jk}-2x_{ik}x_{jk}\right)\end{align*}\">
+
+</p>
 
 where we have divided by 2 to avoid double-counting when an edge's nodes are 
 in different partitions.
 
 Next we need to consider our constraint:  Each partition must have the
 same size.  We can measure the size of partition `k` by summing up our binary
-variables associated with partition `k` (for example, 
-![](https://latex.codecogs.com/gif.latex?%5Clarge%20x_%7B1k%7D),
-![](https://latex.codecogs.com/gif.latex?%5Clarge%20x_%7B2k%7D), ...).
+variables associated with partition `k`, i.e. 
+<img align="center" style="filter:invert(1)" src="https://latex.codecogs.com/svg.latex?\small(x_{1k}+x_{2k}+\ldots).">
 To ensure that all of the partitions have the same size, we enforce a
 constraint that partition `k` has size equal to `N`/`K`, where `N` is the number
 of nodes in the graph and `K` is the number of partitions.
 We represent this constraint mathematically using our chosen
 binary variables as follows:
 
-![eq2](https://latex.codecogs.com/gif.latex?%5Clarge%20constraint%20%3D%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Cleft%20%28%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7D%20x_%7Bik%7D%20-%20%5Cfrac%7BN%7D%7BK%7D%20%5Cright%20%29%5E2)
+
+<p align="center">
+<img style="filter:invert(1)"
+src="https://latex.codecogs.com/svg.latex?\begin{align*}\large\text{Constraint}=\sum_{k=1}^K\left(\sum_{i=1}^Nx_{ik}-\frac{N}{K}\right)^2\end{align*}\">
+</p>
 
 This will have its minimum when each partition has `N`/`K`  nodes.
 
 We bring the objective and constraints together by multiplying the 
-constraints by ![](https://latex.codecogs.com/gif.latex?%5Clarge%20%5Cgamma),
+constraints by <img align="center" style="filter:invert(1)" src="https://latex.codecogs.com/svg.latex?\small\gamma">,
  the [Lagrange parameter](https://en.wikipedia.org/wiki/Lagrange_multiplier).
 
-![eq3](https://latex.codecogs.com/gif.latex?%5Clarge%20QUBO%20%3D%20%5Cfrac%7B1%7D%7B2%7D%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%2Cj%5Cepsilon%20E%7D%28x_%7Bik%7D%20&plus;%20x_%7Bjk%7D%20-%202x_%7Bik%7D%20x_%7Bjk%7D%29&plus;%20%5Cgamma%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Cleft%20%28%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7D%20x_%7Bik%7D%20-%20%5Cfrac%7BN%7D%7BK%7D%20%5Cright%20%29%5E2)
+
+<p align="left">
+<img style="filter:invert(1)"
+src="https://latex.codecogs.com/svg.latex?\large\text{QUBO}=\frac{1}{2}\sum_{k=1}^K\sum_{(i,j)\in\,E}\left(x_{ik}+x_{jk}-2x_{ik}x_{jk}\right)+\gamma\sum_{k=1}^K\left(\sum_{i=1}^Nx_{ik}-\frac{N}{K}\right)^2">
+</p>
 
 There are algebraic simplifications that can be performed on this sum.
 Multiplying the second term out, we find:
 
-![eq4](https://latex.codecogs.com/gif.latex?%5Clarge%20QUBO%20%3D%20%5Cfrac%7B1%7D%7B2%7D%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%2Cj%5Cepsilon%20E%7D%28x_%7Bik%7D%20&plus;%20x_%7Bjk%7D%20-%202x_%7Bik%7D%20x_%7Bjk%7D%29&plus;%20%5Cgamma%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Cleft%20%28%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7D%20x_%7Bik%7D%20%5Cright%20%29%5E2%20&plus;%20%5Cgamma%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%28-2%5Cfrac%7BN%7D%7Bk%7D%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7D%20x_%7Bik%7D%29%20&plus;%20%5Cgamma%5Cfrac%7BN%5E2%7D%7BK%5E2%7D%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D)
 
-and then the constant (last term) is the energy offset, which gives us:
+<p align="left">
+<img style="filter:invert(1)"
+src="https://latex.codecogs.com/svg.latex?\begin{align*}\large\text{QUBO}=\frac{1}{2}\sum_{k=1}^K\sum_{(i,j)\in\,E}\left(x_{ik}+x_{jk}-2x_{ik}x_{jk}\right)+\gamma\sum_{k=1}^K\left(\sum_{i=1}^Nx_{ik}\right)^2+\gamma\sum_{k=1}^K\left(-2\frac{N}{K}\sum_{i=1}^Nx_{ik}\right)+\gamma\sum_{k=1}^K\frac{N^2}{K^2}\end{align*}\">
+</p>
 
-![eq5](https://latex.codecogs.com/gif.latex?%5Clarge%20QUBO%20%3D%20%5Cgamma%5Cfrac%7BN%5E2%7D%7BK%7D%20&plus;%20%5Cfrac%7B1%7D%7B2%7D%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%2Cj%5Cepsilon%20E%7D%28x_%7Bik%7D%20&plus;%20x_%7Bjk%7D%20-%202x_%7Bik%7D%20x_%7Bjk%7D%29&plus;%20%5Cgamma%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Cleft%20%28%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7D%20x_%7Bik%7D%20%5Cright%20%29%5E2%20&plus;%20%5Cgamma%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%28-2%5Cfrac%7BN%7D%7Bk%7D%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7D%20x_%7Bik%7D%29)
+and then the constant (last term) is the energy offset that can be ignored, which gives us:
+
+<p align="left">
+<img style="filter:invert(1)"
+src="https://latex.codecogs.com/svg.latex?\begin{align*}\large\text{QUBO}=\frac{1}{2}\sum_{k=1}^K\sum_{(i,j)\in\,E}\left(x_{ik}+x_{jk}-2x_{ik}x_{jk}\right)+\gamma\sum_{k=1}^K\left(\sum_{i=1}^Nx_{ik}\right)^2+\gamma\sum_{k=1}^K\left(-2\frac{N}{K}\sum_{i=1}^Nx_{ik}\right)\end{align*}\">
+</p>
 
 and expanding the squared sum,
 
-![eq6](https://latex.codecogs.com/gif.latex?%5Clarge%20QUBO%20%3D%20%5Cgamma%5Cfrac%7BN%5E2%7D%7BK%7D%20&plus;%20%5Cfrac%7B1%7D%7B2%7D%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%2Cj%5Cepsilon%20E%7D%28x_%7Bik%7D%20&plus;%20x_%7Bjk%7D%20-%202x_%7Bik%7D%20x_%7Bjk%7D%29&plus;%20%5Cgamma%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Cleft%20%28%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7Dx_%7Bik%7D%20&plus;%202%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7D%20%5Csum%5Climits_%7Bj%3Ei%7D%5Climits%5E%7BN%7D%20x_%7Bik%7Dx_%7Bjk%7D%20%5Cright%20%29%20&plus;%20%5Cgamma%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%28-2%5Cfrac%7BN%7D%7Bk%7D%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7D%20x_%7Bik%7D%29)
+<p align="left">
+<img style="filter:invert(1)"
+src="https://latex.codecogs.com/svg.latex?\begin{align*}\large\text{QUBO}=\frac{1}{2}\sum_{k=1}^K\sum_{(i,j)\in\,E}\left(x_{ik}+x_{jk}-2x_{ik}x_{jk}\right)+\gamma\sum_{k=1}^K\left(\sum_{i=1}^Nx_{ik}+2\sum_{i=1}^N\sum_{j>i}^Nx_{ik}x_{jk}\right)+\gamma\sum_{k=1}^K\left(-2\frac{N}{K}\sum_{i=1}^Nx_{ik}\right)\end{align*}\">
+</p>
 
 and we can merge the linear terms,
 
-![eq7](https://latex.codecogs.com/gif.latex?%5Clarge%20QUBO%20%3D%20%5Cgamma%5Cfrac%7BN%5E2%7D%7BK%7D%20&plus;%20%5Cfrac%7B1%7D%7B2%7D%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%2Cj%5Cepsilon%20E%7D%28x_%7Bik%7D%20&plus;%20x_%7Bjk%7D%20-%202x_%7Bik%7D%20x_%7Bjk%7D%29&plus;%20%5Cgamma%20%281%20-%202%5Cfrac%7BN%7D%7BK%7D%29%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7Dx_%7Bik%7D%20&plus;%202%5Cgamma%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7D%20%5Csum%5Climits_%7Bj%3Ei%7D%5Climits%5E%7BN%7D%20x_%7Bik%7Dx_%7Bjk%7D)
+<p align="left">
+<img style="filter:invert(1)"
+src="https://latex.codecogs.com/svg.latex?\begin{align*}\large\text{QUBO}=\frac{1}{2}\sum_{k=1}^K\sum_{(i,j)\in\,E}\left(x_{ik}+x_{jk}-2x_{ik}x_{jk}\right)+\gamma\big(1-2\frac{N}{K}\big)\sum_{k=1}^K\sum_{i=1}^Nx_{ik}+2\gamma\sum_{k=1}^K\sum_{i=1}^N\sum_{j>i}^Nx_{ik}x_{jk}\end{align*}\">
+</p>
+
 
 and we can move the quadratic terms together,
 
-![eq8](https://latex.codecogs.com/gif.latex?%5Clarge%20QUBO%20%3D%20%5Cgamma%5Cfrac%7BN%5E2%7D%7BK%7D%20&plus;%20%5Cfrac%7B1%7D%7B2%7D%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%2Cj%5Cepsilon%20E%7D%28x_%7Bik%7D%20&plus;%20x_%7Bjk%7D%29%20&plus;%20%5Cgamma%20%281%20-%202%5Cfrac%7BN%7D%7BK%7D%29%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7Dx_%7Bik%7D%20-%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%2Cj%5Cepsilon%20E%7Dx_%7Bik%7D%20x_%7Bjk%7D%20&plus;%202%5Cgamma%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7D%20%5Csum%5Climits_%7Bj%3Ei%7D%5Climits%5E%7BN%7D%20x_%7Bik%7Dx_%7Bjk%7D)
+<p align="left">
+<img style="filter:invert(1)"
+src="https://latex.codecogs.com/svg.latex?\begin{align*}\large\text{QUBO}=\frac{1}{2}\sum_{k=1}^K\sum_{(i,j)\in\,E}\left(x_{ik}+x_{jk}\right)+\gamma\big(1-2\frac{N}{K}\big)\sum_{k=1}^K\sum_{i=1}^Nx_{ik}-\sum_{k=1}^K\sum_{(i,j)\in\,E}x_{ik}x_{jk}+2\gamma\sum_{k=1}^K\sum_{i=1}^N\sum_{j>i}^Nx_{ik}x_{jk}\end{align*}\">
+</p>
 
-Now, the second term in the QUBO can be simplified if we realize that variables such as ![](https://latex.codecogs.com/gif.latex?%5Clarge%20x_%7Bik%7D) will
+Now, the second term in the QUBO can be simplified if we realize that variables such as <img align="center" style="filter:invert(1)" src="https://latex.codecogs.com/svg.latex?\small\,x_{ik}\"> will
 appear as many times as node `i` appears in the graph, which is the
 degree of node `i` in the graph. Our QUBO thus reduces to:
 
-![eq9](https://latex.codecogs.com/gif.latex?%5Clarge%20QUBO%20%3D%20%5Cgamma%5Cfrac%7BN%5E2%7D%7BK%7D%20&plus;%20%5Cfrac%7B1%7D%7B2%7D%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7Ddegree%28i%29x_%7Bik%7D%20&plus;%20%5Cgamma%20%281%20-%202%5Cfrac%7BN%7D%7BK%7D%29%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7Dx_%7Bik%7D%20-%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%2Cj%5Cepsilon%20E%7Dx_%7Bik%7D%20x_%7Bjk%7D%20&plus;%202%5Cgamma%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7D%20%5Csum%5Climits_%7Bj%3Ei%7D%5Climits%5E%7BN%7D%20x_%7Bik%7Dx_%7Bjk%7D)
+
+<p align="left">
+<img style="filter:invert(1)"
+src="https://latex.codecogs.com/svg.latex?\begin{align*}\large\text{QUBO}=\frac{1}{2}\sum_{k=1}^K\sum_{i=1}^N\text{deg}(i)\,x_{ik}+\gamma\big(1-2\frac{N}{K}\big)\sum_{k=1}^K\sum_{i=1}^Nx_{ik}-\sum_{k=1}^K\sum_{(i,j)\in\,E}x_{ik}x_{jk}+2\gamma\sum_{k=1}^K\sum_{i=1}^N\sum_{j>i}^Nx_{ik}x_{jk}\end{align*}\">
+</p>
 
 Leap's DQM solver accepts problems expressed in terms of an
 Ocean [DiscreteQuadraticModel](https://docs.ocean.dwavesys.com/en/stable/docs_dimod/reference/dqm.html) object.
