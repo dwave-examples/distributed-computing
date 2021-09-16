@@ -121,14 +121,14 @@ def build_graph(args):
 def visualize_input_graph(G):
     """ Visualize graph to be partitioned."""
 
-    pos = nx.circular_layout(G)
+    pos = nx.random_layout(G)
     nx.draw_networkx_nodes(G, pos, node_size=20, node_color='r', edgecolors='k')
     nx.draw_networkx_edges(G, pos, edgelist=G.edges(), style='solid', edge_color='#808080')
     plt.draw()
     plt.savefig('input_graph.png')
     plt.close()
 
-def build_cqm(G, k, lagrange):
+def build_cqm(G, k):
 
     # Set up the partitions
     partitions = range(k)
@@ -266,7 +266,7 @@ if __name__ == '__main__':
 
     visualize_input_graph(G)
 
-    cqm = build_cqm(G, k, 3)
+    cqm = build_cqm(G, k)
 
     # Initialize the CQM solver
     print("\nOptimizing on LeapHybridCQMSampler...")
