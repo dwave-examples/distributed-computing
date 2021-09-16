@@ -48,7 +48,13 @@ def read_in_args(args):
     return parser.parse_args(args)
 
 def build_graph(args):
-    """Builds graph from user specified parameters or use defaults."""
+    """Builds graph from user specified parameters or use defaults.
+    Args:
+        Args: User inputs for scenario
+    
+    Returns:
+        G (Graph): The graph to be partitioned
+    """
     
     # Build graph using networkx
     if args.k_partition < 2:
@@ -119,7 +125,13 @@ def build_graph(args):
 
 # Visualize the input graph
 def visualize_input_graph(G):
-    """ Visualize graph to be partitioned."""
+    """Visualize the graph to be partitioned.
+    Args:
+        G (Graph): Input graph to be partitioned
+    
+    Returns:
+        None. Image saved as input_graph.png.
+    """
 
     pos = nx.random_layout(G)
     nx.draw_networkx_nodes(G, pos, node_size=20, node_color='r', edgecolors='k')
@@ -129,6 +141,14 @@ def visualize_input_graph(G):
     plt.close()
 
 def build_cqm(G, k):
+    """Build the CQM.
+    Args:
+        G (Graph): Input graph to be partitioned
+        k (int): Number of partitions to be used
+    
+    Returns:
+        cqm (ConstrainedQuadraticModel): The CQM for our problem
+    """
 
     # Set up the partitions
     partitions = range(k)
@@ -164,7 +184,14 @@ def build_cqm(G, k):
     return cqm
 
 def run_cqm_and_collect_solutions(cqm, sampler):
-    """Send the CQM to the sampler and return the best sample found."""
+    """Send the CQM to the sampler and return the best sample found.
+    Args:
+        cqm (ConstrainedQuadraticModel): The CQM for our problem
+        sampler: The sampler to be used
+    
+    Returns:
+        best_sample (dict): Best solution found
+    """
 
     # Initialize the solver
     print("\nSending to the solver...")
@@ -175,7 +202,6 @@ def run_cqm_and_collect_solutions(cqm, sampler):
     # Return the first feasible solution
     first_run = True
     for sample, feas in sampleset.data(fields=['sample','is_feasible']):
-        # print(sample, feas)
         if first_run:
             best_sample = sample
         if feas:
@@ -184,7 +210,18 @@ def run_cqm_and_collect_solutions(cqm, sampler):
     print("\nNo feasible solutions found.\n")
     return best_sample
 
-def process_sample(sample, G, k):
+def process_sample(sample, G, k, verbose=True):
+    """Interpret the sample found in terms of our graph.
+    Args:
+        sample (dict): Sample to be used
+        G (graph): Original input graph
+        k (int): Number of partitions
+        verbose (bool): Trigger to print output to command-line
+    
+    Returns:
+        soln (list): List of partitions, indexed by node
+        partitions (dict): Each item is partition: [nodes in partition]
+    """
 
     partitions = defaultdict(list)
     soln = [-1]*G.number_of_nodes()
@@ -206,15 +243,23 @@ def process_sample(sample, G, k):
         if soln[i] != soln[j]:
             sum_diff += 1
 
-    # print("\nSolution energy with offset included: ", energy + offset)
-    print("Counts in each partition: ", counts)
-    print("Number of links between partitions: ", sum_diff)
-    print("Number of links within partitions:", len(G.edges)-sum_diff)
+    if verbose:
+        print("Counts in each partition: ", counts)
+        print("Number of links between partitions: ", sum_diff)
+        print("Number of links within partitions:", len(G.edges)-sum_diff)
 
     return soln, partitions
 
 def visualize_results(G, partitions, soln):
-    """Visualize the partition."""
+    """Visualize the partition.
+    Args:
+        G (graph): Original input graph
+        partitions (dict): Each item is partition: [nodes in partition]
+        soln (list): List of partitions, indexed by node
+    
+    Returns:
+        None. Output is saved as output_graph.png        
+    """
 
     print("\nVisualizing output...")
 
@@ -255,7 +300,6 @@ def visualize_results(G, partitions, soln):
 
     print("\tOutput stored in", output_name)
 
-
 if __name__ == '__main__':
 
     args = read_in_args(sys.argv[1:])
@@ -276,7 +320,5 @@ if __name__ == '__main__':
     
     if sample is not None:
         soln, partitions = process_sample(sample, G, k)
-    # soln = [2, 0, 1, 3, 1, 3, 0, 3, 1, 2, 2, 0]
-    # partitions = {0: [1, 6, 11], 1: [2, 4, 8], 2: [0, 9, 10], 3: [3, 5, 7]}
 
     visualize_results(G, partitions, soln)
