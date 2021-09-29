@@ -16,6 +16,7 @@ from random import random
 from collections import defaultdict
 import sys
 
+import itertools
 import networkx as nx
 import numpy as np
 import argparse
@@ -113,8 +114,8 @@ def build_graph(args):
             print("\nMust have at least one node in the graph. Setting size to 1000.\n")
             args.nodes = 1000
         if args.new_edges < 0 or args.new_edges > args.nodes:
-            print("\nNumber of edges must be between 1 and n. Setting to 5.\n")
-            args.new_edges = 5
+            print("\nNumber of edges must be between 1 and n. Setting to min(n-1, 5).\n")
+            args.new_edges = min(args.nodes-1, 5)
         print("\nGenerating Barabasi-Albert scale-free graph...")
         G = nx.barabasi_albert_graph(args.nodes, args.new_edges)
     else:
@@ -200,15 +201,14 @@ def run_cqm_and_collect_solutions(cqm, sampler):
     sampleset = sampler.sample_cqm(cqm, label='Example - Graph Partitioning')
 
     # Return the first feasible solution
-    first_run = True
-    for sample, feas in sampleset.data(fields=['sample','is_feasible']):
-        if first_run:
-            best_sample = sample
-        if feas:
-            return sample
 
-    print("\nNo feasible solutions found.\n")
-    return best_sample
+    if not any(sampleset.record["is_feasible"]):
+        raise ValueError("No feasible solution found")
+
+    best = next(itertools.filterfalse(lambda d: not getattr(d,'is_feasible'),
+                list(sampleset.data())))
+
+    return best.sample
 
 def process_sample(sample, G, k, verbose=True):
     """Interpret the sample found in terms of our graph.

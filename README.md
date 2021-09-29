@@ -1,6 +1,6 @@
 [![Linux/Mac/Windows build status](
-https://circleci.com/gh/dwave-examples/graph-partitioning-dqm.svg?style=svg)](
-https://circleci.com/gh/dwave-examples/graph-partitioning-dqm)
+https://circleci.com/gh/dwave-examples/distributed-computing.svg?style=svg)](
+https://circleci.com/gh/dwave-examples/distributed-computing)
 
 # Distributed Computing
 
@@ -109,7 +109,7 @@ whether i and j are each assigned to partition k.
 | 1 | 0 | inter | 1 |
 | 1 | 1 | intra | 0 |
 
-Now that we have an expression to appropriate cost each edge and each
+Now that we have an expression for the appropriate cost for each edge and each
 partition, we simply sum over all edges and all partitions to build the
 objective function that will minimize the number of inter-partition edges in
 the entire graph.
@@ -128,7 +128,7 @@ have that the sum of all binary variables associated with i is equal to 1.
 
 #### Partition Size Constraint
 
-To efficiently distributed the operational load across computers in our system,
+To efficiently distribute the operational load across computers in our system,
 we would like the partitions to have equal size. If N is the total number of
 nodes in the graph and k is the number of partitions available, each partition
 should have size N/k. We enforce this by requiring that the sum of binary
