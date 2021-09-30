@@ -73,6 +73,7 @@ def build_graph(args):
         print("\nBuilding partition graph...")
         k = args.k_partition
         n = int(args.nodes/k)*k
+        print("\nNumber of nodes must be divisible by k. Adjusted number of nodes to", n)
         G = nx.random_partition_graph([int(n/k)]*k, args.p_in, args.p_out)
     elif args.graph == 'internet':
         if args.nodes < 1000 or args.nodes > 3000:
@@ -203,7 +204,8 @@ def run_cqm_and_collect_solutions(cqm, sampler):
     # Return the first feasible solution
 
     if not any(sampleset.record["is_feasible"]):
-        raise ValueError("No feasible solution found")
+        print("\nNo feasible solution found.\n")
+        return None
 
     best = next(itertools.filterfalse(lambda d: not getattr(d,'is_feasible'),
                 list(sampleset.data())))
