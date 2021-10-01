@@ -5,9 +5,9 @@ https://circleci.com/gh/dwave-examples/distributed-computing)
 # Distributed Computing
 
 In [distributed computing systems](https://en.wikipedia.org/wiki/Distributed_computing), a group of computers work together to achieve
-a common goal. For example, a group of computers might work together to deal
-with a large data set for analysis. In these types of computing systems, each
-computer manages a piece of the problem and interacts with the other computing
+a common goal. For example, a group of computers might work together to
+analyze a large data set. In these types of computing systems, each computer
+manages a piece of the problem and interacts with the other computing
 systems by passing messages. Each computer handles a subset of the required
 operations, and some operations might require inputs computed by a different
 computer. By passing a message containing the required input, the operation can
@@ -20,11 +20,12 @@ by minimizing waiting time.
 
 ## Modeling the Problem as a Graph
 
-To solve this problem, we build a graph or network model. Each operation for
-the overall computation is represented by a node or vertex in the graph, and an
+To solve the problem of minimizing messaging between computers in a distributed
+computing system, we build a graph or network model. Each operation for the
+overall computation is represented by a node, or vertex, in the graph, and an
 edge between nodes indicates that there is a dependency between two operations.
 To minimize the number of messages passed, we would like to partition the
-operations amongst the available computers so that the number of edges going
+operations amongst the available computers so that the number of messages
 between computers (or partitions) is minimized. Additionally, we would also
 like to balance the workload across our available computers by partitioning the
 operations evenly.
@@ -66,7 +67,7 @@ functions, and the details of these functions can be found [here](https://networ
 - `partition`: Partition graph; specify number of nodes, number of partitions,
   and inter- and intra-partition edge probabilities.
 - `internet`: Internet Autonomous System network; specify number of nodes
-  between 1,000 and 3,000.
+  between 1,000 and 5,000.
 - `rand-reg`: A random d-regular graph; specify number of nodes and value for d.
 - `ER`: Erdos-Renyi random graph; specify number of nodes and edge probability.
 - `SF`: Barabasi-Albert scale-free graph; specify number of nodes and number of
@@ -74,8 +75,8 @@ functions, and the details of these functions can be found [here](https://networ
 
 The default graph is the partition graph on 100 nodes with 4 partitions with
 inter-partition edge probability of 0.5 and intra-partition edge probability of
-0.001. The largest number of nodes allowed for any graph specified can be at
-most 3,000.
+0.001. The largest number of nodes times the number of partitions allowed for
+any problem instance can be at most 5,000.
 
 ## Code Overview
 
@@ -85,22 +86,22 @@ quadratic model (CQM), and solves it using the hybrid CQM solver.
 ### Variables
 
 The formulation of this problem defines a binary variable x for each pair
-(n, k), where n is a node in the graph and k is a partition. If the solution
-returns variable (n, k) = 1, then node n is assigned to partition k. Otherwise,
-if the solution returns variable (n, k) = 0, then node n is *not* assigned to
-partition k.
+(n, p), where n is a node in the graph and p is a partition. If the solution
+returns variable (n, p) = 1, then node n is assigned to partition p. Otherwise,
+if the solution returns variable (n, p) = 0, then node n is *not* assigned to
+partition p.
 
 ### Objective
 
 The objective for this problem is to minimize the number of inter-partition
 edges. We can formulate this as a binary quadratic expression that needs to be
 minimized by considering an arbitrary edge (i, j) between nodes i and j in the
-graph. For each partition k, we add the expression
-(i, k) + (j, k) - 2\*(i, k)\*(j, k) to decrease the overall cost when i and j
+graph. For each partition p, we add the expression
+(i, p) + (j, p) - 2\*(i, p)\*(j, p) to decrease the overall cost when i and j
 are assigned to the same partition, and increase the overall cost when they
 are not. To see how this expression maps to these costs, we examine the
 following table which demonstrates the cost of edge (i, j), depending on
-whether i and j are each assigned to partition k.
+whether i and j are each assigned to partition p.
 
 | (i, k) | (j, k) | edge (i,j) | cost |
 | :---: | :---: | :---: | :---: |
@@ -114,17 +115,17 @@ partition, we simply sum over all edges and all partitions to build the
 objective function that will minimize the number of inter-partition edges in
 the entire graph.
 
-**Objective:** minimize &Sigma;<sub>(i,j)</sub> &Sigma;<sub>k</sub> x<sub>(i,k)</sub> + x<sub>(j,k)</sub> - 2\*x<sub>(i,k)</sub>\*x<sub>(j,k)</sub> 
+**Objective:** minimize &Sigma;<sub>(i,j)</sub> &Sigma;<sub>p</sub> x<sub>(i,p)</sub> + x<sub>(j,p)</sub> - 2\*x<sub>(i,p)</sub>\*x<sub>(j,p)</sub> 
 
 ### Constraints
 
 #### One-Hot Constraint
 
 Each node in our graph must be assigned to exactly one partition, so we must
-enforce a one-hot constraint on each node. That is, for each node i, we must
+enforce a [one-hot constraint](https://en.wikipedia.org/wiki/One-hot ) on each node. That is, for each node i, we must
 have that the sum of all binary variables associated with i is equal to 1.
 
-**Constraint 1:** &Sigma;<sub>k</sub> x<sub>(i,k)</sub> = 1, for each node i
+**Constraint 1:** &Sigma;<sub>k</sub> x<sub>(i,p)</sub> = 1, for each node i
 
 #### Partition Size Constraint
 
@@ -132,7 +133,9 @@ To efficiently distribute the operational load across computers in our system,
 we would like the partitions to have equal size. If N is the total number of
 nodes in the graph and k is the number of partitions available, each partition
 should have size N/k. We enforce this by requiring that the sum of binary
-variables associated with each partition is equal to N/k.
+variables associated with each partition is equal to N/k. Note that this
+requires that N is evenly divisble by k, and so the demo file will adjust N as
+needed to enforce this requirement.
 
 **Constraint 2:** &Sigma;<sub>i</sub> x<sub>(i,p)</sub> = N/k, for each partition p.
 

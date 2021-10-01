@@ -21,7 +21,7 @@ import networkx as nx
 import numpy as np
 import argparse
 import matplotlib
-from dimod import Binary, ConstrainedQuadraticModel
+from dimod import Binary, ConstrainedQuadraticModel, quicksum
 from dwave.system import LeapHybridCQMSampler
 
 try:
@@ -58,6 +58,8 @@ def build_graph(args):
     """
     
     # Build graph using networkx
+    if args.k_partition * args.nodes > 5000:
+        raise ValueError("\nProblem size is too large.\n")
     if args.k_partition < 2:
         print("\nMust have at least two partitions.\n\tSetting number of partitions to 4.\n")
         args.k_partition = 4
@@ -72,56 +74,59 @@ def build_graph(args):
             args.p_out = 0.001
         print("\nBuilding partition graph...")
         k = args.k_partition
-        n = int(args.nodes/k)*k
-        print("\nNumber of nodes must be divisible by k. Adjusted number of nodes to", n)
+        if args.nodes % k != 0:
+            n = int(args.nodes/k)*k
+        else:
+            n = args.nodes
+        print("\nNumber of nodes must be divisible by k. Adjusted number of nodes to {}.".format(n))
         G = nx.random_partition_graph([int(n/k)]*k, args.p_in, args.p_out)
     elif args.graph == 'internet':
         if args.nodes < 1000 or args.nodes > 3000:
             args.nodes = 1000
-            print("\nSize for internet graph must be between 1000 and 3000.\nSetting size to 1000.\n")
+            print("\nSize for internet graph must be between 1000 and 3000.\nSetting size to 1000.")
         print("\nReading in internet graph of size", args.nodes, "...")
         G = nx.random_internet_as_graph(args.nodes)
     elif args.graph == 'rand-reg':
         if args.nodes < 1:
-            print("\nMust have at least one node in the graph.\nSetting size to 100.\n")
+            print("\nMust have at least one node in the graph.\nSetting size to 100.")
         if args.degree < 0 or args.degree >= args.nodes:
-            print("\nDegree must be between 0 and n-1. Setting size to min(4, n-1).\n")
+            print("\nDegree must be between 0 and n-1. Setting size to min(4, n-1).")
             args.degree = min(4, args.nodes-1)
         if args.degree*args.nodes % 2 == 1:
-            print("\nRequirement: n*d must be even.\n")
+            print("\nRequirement: n*d must be even.")
             if args.degree > 0:
                 args.degree -= 1
-                print("\nSetting degree to", args.degree, "\n")
+                print("\nSetting degree to", args.degree)
             elif args.nodes-1 > args.degree:
                 args.nodes -= 1
-                print("\nSetting nodes to", args.nodes, "\n")
+                print("\nSetting nodes to", args.nodes)
             else:
-                print("\nSetting nodes to 1000 and degree to 4.\n")
+                print("\nSetting nodes to 1000 and degree to 4.")
                 args.nodes = 1000
                 args.degree = 4
         print("\nGenerating random regular graph...")
         G = nx.random_regular_graph(args.degree, args.nodes)
     elif args.graph == 'ER':
         if args.nodes < 1:
-            print("\nMust have at least one node in the graph. Setting size to 1000.\n")
+            print("\nMust have at least one node in the graph. Setting size to 1000.")
             args.nodes = 1000
         if args.prob < 0 or args.prob > 1:
-            print("\nProbability must be between 0 and 1. Setting prob to 0.25.\n")
+            print("\nProbability must be between 0 and 1. Setting prob to 0.25.")
             args.prob = 0.25
         print("\nGenerating Erdos-Renyi graph...")
         G = nx.erdos_renyi_graph(args.nodes, args.prob)
     elif args.graph == 'SF':
         if args.nodes < 1:
-            print("\nMust have at least one node in the graph. Setting size to 1000.\n")
+            print("\nMust have at least one node in the graph. Setting size to 1000.")
             args.nodes = 1000
         if args.new_edges < 0 or args.new_edges > args.nodes:
-            print("\nNumber of edges must be between 1 and n. Setting to min(n-1, 5).\n")
+            print("\nNumber of edges must be between 1 and n. Setting to min(n-1, 5).")
             args.new_edges = min(args.nodes-1, 5)
         print("\nGenerating Barabasi-Albert scale-free graph...")
         G = nx.barabasi_albert_graph(args.nodes, args.new_edges)
     else:
-        print("\nReading in karate graph...")
-        G = nx.karate_club_graph()
+        print("\nBuilding partition graph...")
+        G = nx.random_partition_graph([25, 25, 25, 25], 0.5, 0.001)
 
     return G
 
@@ -167,13 +172,13 @@ def build_cqm(G, k):
     print("\nAdding one-hot constraints...")
     for n in G.nodes:
         # print("\nAdding one-hot for node", n)
-        cqm.add_constraint(sum(v[n]) == 1, label='one-hot-node-{}'.format(n)) 
+        cqm.add_constraint(quicksum(v[n]) == 1, label='one-hot-node-{}'.format(n)) 
 
     # Constraint: Partitions have equal size
     print("\nAdding partition size constraint...")
     for p in partitions:
         # print("\nAdding partition size constraint for partition", p)
-        cqm.add_constraint(sum(v[n][p] for n in G.nodes) == (G.number_of_nodes()/k), label='partition-size-{}'.format(p))
+        cqm.add_constraint(quicksum(v[n][p] for n in G.nodes) == G.number_of_nodes()/k, label='partition-size-{}'.format(p))
 
     # Objective: minimize edges between partitions
     print("\nAdding objective...")
@@ -189,7 +194,7 @@ def run_cqm_and_collect_solutions(cqm, sampler):
     """Send the CQM to the sampler and return the best sample found.
     Args:
         cqm (ConstrainedQuadraticModel): The CQM for our problem
-        sampler: The sampler to be used
+        sampler: The CQM sampler to be used. Must have sample_cqm function.
     
     Returns:
         best_sample (dict): Best solution found
@@ -202,7 +207,6 @@ def run_cqm_and_collect_solutions(cqm, sampler):
     sampleset = sampler.sample_cqm(cqm, label='Example - Graph Partitioning')
 
     # Return the first feasible solution
-
     if not any(sampleset.record["is_feasible"]):
         print("\nNo feasible solution found.\n")
         return None
@@ -260,7 +264,7 @@ def visualize_results(G, partitions, soln):
         soln (list): List of partitions, indexed by node
     
     Returns:
-        None. Output is saved as output_graph.png        
+        None. Output is saved as output_graph.png.        
     """
 
     print("\nVisualizing output...")
@@ -316,7 +320,7 @@ if __name__ == '__main__':
 
     # Initialize the CQM solver
     print("\nOptimizing on LeapHybridCQMSampler...")
-    sampler = LeapHybridCQMSampler(profile='cqm', solver='hybrid_constrained_quadratic_model_version1_alpha')
+    sampler = LeapHybridCQMSampler()
     
     sample = run_cqm_and_collect_solutions(cqm, sampler)
     

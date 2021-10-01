@@ -45,7 +45,7 @@ class TestDemo(unittest.TestCase):
 
         cqm = demo.build_cqm(G, k)
 
-        sampler = LeapHybridCQMSampler(profile='cqm', solver='hybrid_constrained_quadratic_model_version1_alpha')
+        sampler = LeapHybridCQMSampler()
 
         sample = demo.run_cqm_and_collect_solutions(cqm, sampler)
 
