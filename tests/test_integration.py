@@ -49,9 +49,4 @@ class TestDemo(unittest.TestCase):
 
         sample = demo.run_cqm_and_collect_solutions(cqm, sampler)
 
-        if sample is not None:
-            _, partitions = demo.process_sample(sample, G, k, verbose=False)
-
-        for _, nodes in partitions.items():
-            self.assertEqual(len(nodes), G.number_of_nodes()/k)
-
+        _, partitions = demo.process_sample(sample, G, k, verbose=False)
