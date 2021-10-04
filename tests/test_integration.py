@@ -1,4 +1,4 @@
-# Copyright 2020 D-Wave Systems Inc.
+# Copyright 2021 D-Wave Systems Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,23 +14,39 @@
 
 import subprocess
 import unittest
-import time
 import os
 import sys
 
+from dwave.system import LeapHybridCQMSampler
+import networkx as nx
+
+import demo
+
 project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-class IntegrationTests(unittest.TestCase):
+class TestSmoke(unittest.TestCase):
+    @unittest.skipIf(os.getenv('SKIP_INT_TESTS'), "Skipping integration test.")
+    def test_smoke(self):
+        """Run demo.py and check that nothing crashes"""
 
-    def test_graph_partitioning(self):
-        example_file = os.path.join(project_dir, 'graph_partitioning.py')
-        output = subprocess.check_output([sys.executable, example_file])
-        output = str(output).upper()
-        if os.getenv('DEBUG_OUTPUT'):
-            print("Example output \n" + output)
+        demo_file = os.path.join(project_dir, 'demo.py')
+        subprocess.check_output([sys.executable, demo_file])
 
-        with self.subTest(msg="Verify if Counts in each partition is correct \n"):
-            self.assertIn("Counts in each partition:  [6. 6. 6. 6. 6.]".upper(), output)
+class TestDemo(unittest.TestCase):
+    def test_default_soln(self):
+        """Check the default solution quality."""
 
-if __name__ == '__main__':
-    unittest.main()
+        n = 100
+        k = 4
+        p_in = 0.5
+        p_out = 0.01
+
+        G = nx.random_partition_graph([int(n/k)]*k, p_in, p_out)
+
+        cqm = demo.build_cqm(G, k)
+
+        sampler = LeapHybridCQMSampler()
+
+        sample = demo.run_cqm_and_collect_solutions(cqm, sampler)
+
+        _, partitions = demo.process_sample(sample, G, k, verbose=False)
