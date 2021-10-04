@@ -16,7 +16,6 @@ from random import random
 from collections import defaultdict
 import sys
 
-import itertools
 import networkx as nx
 import numpy as np
 import argparse
