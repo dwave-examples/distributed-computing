@@ -1,172 +1,143 @@
-# Graph Partitioning Using A Discrete Quadratic Model
+[![Linux/Mac/Windows build status](
+https://circleci.com/gh/dwave-examples/distributed-computing.svg?style=svg)](
+https://circleci.com/gh/dwave-examples/distributed-computing)
 
-A demo of Graph Partitioning using Leap's hybrid discrete quadratic model (DQM) solver.
+# Distributed Computing
 
-![Original Plot](readme_imgs/not_partition_yet.png)
+In [distributed computing systems](https://en.wikipedia.org/wiki/Distributed_computing), a group of computers work together to achieve
+a common goal. For example, a group of computers might work together to
+analyze a large data set. In these types of computing systems, each computer
+manages a piece of the problem and interacts with the other computing
+systems by passing messages. Each computer handles a subset of the required
+operations, and some operations might require inputs computed by a different
+computer. By passing a message containing the required input, the operation can
+then be completed. These messages might contain information required to
+continue the computations, and so can become a bottleneck to efficient
+computation. By minimizing the number of messages required between computers we
+can also minimize the number of dependencies between the operations performed
+on different systems, making the overall computation faster and more efficient
+by minimizing waiting time.
 
-The figure above shows the graph we want to partition.
+## Modeling the Problem as a Graph
 
-We want to partition this graph so that there are as few links between
-partitions as possible, and so that the partitions have equal size.
-This is a [well-known problem](https://en.wikipedia.org/wiki/Graph_partition) which is already in the [D-Wave Collection of Examples](https://github.com/dwave-examples/graph-partitioning). In this repo, we're going to use the D-Wave DQM 
-solver.
+To solve the problem of minimizing messaging between computers in a distributed
+computing system, we build a graph or network model. Each operation for the
+overall computation is represented by a node, or vertex, in the graph, and an
+edge between nodes indicates that there is a dependency between two operations.
+To minimize the number of messages passed, we would like to partition the
+operations amongst the available computers so that the number of messages
+between computers (or partitions) is minimized. Additionally, we would also
+like to balance the workload across our available computers by partitioning the
+operations evenly.
+
+To solve this problem in our graph model, we are looking to partition the set
+of nodes into a fixed number of subsets of equal size so that the total number
+of edges between subsets is minimized. This is known as the graph
+k-partitioning problem. In the case where k = 2, it is straightforward to use
+binary variables to indicate the subsets for each operation and solve using a
+binary quadratic model, as shown in the [graph partitioning code example](https://github.com/dwave-examples/graph-partitioning). For
+k > 2, the problem becomes significantly more complex.
 
 ## Usage
 
-To run the demo:
+To run the demo, type:
 
-```bash
-python graph_partitioning.py
-```
+```python demo.py```
 
-The program will produce a solution which might look like this:
+Additional options are available to select different graphs to run the problem
+on. To see the full list of options, type:
 
-```
-Solution:  {0: 4, 1: 0, 2: 2, 3: 4, 4: 4, 5: 1, 6: 3, 7: 1, 8: 0, 9: 4, 10: 3, 11: 1, 12: 2, 13: 3, 14: 3, 15: 0, 16: 1, 17: 2, 18: 1, 19: 3, 20: 2, 21: 2, 22: 0, 23: 3, 24: 4, 25: 0, 26: 2, 27: 1, 28: 0, 29: 4}
-Solution energy with offset included:  134.0
-Counts in each partition:  [6. 6. 6. 6. 6.]
-Number of links between partitions:  67
-```
+```python demo.py -h```
 
-and when the solution is drawn:
+During a successful run of the program, two images are produced and saved. The
+first is the original input graph, saved as `input_graph.png`.
 
-![Partition Plot](readme_imgs/partition.png)
+![Example Input](readme_imgs/not_partition_yet.png)
 
-we see that the partitions have equal size. The code counts the number of links
-between partitions. An image showing the partitions is saved as
-`graph_partition_result.png`.
+The second highlights the partition of the population into groups.
+
+![Example Output](readme_imgs/partition.png)
+
+### Graphs Available
+
+Several different types of graphs or networks are available for this demo using
+the options provided. These are all built using NetworkX graph generator
+functions, and the details of these functions can be found [here](https://networkx.org/documentation/stable//reference/generators.html#).
+
+- `partition`: Partition graph; specify number of nodes, number of partitions,
+  and inter- and intra-partition edge probabilities.
+- `internet`: Internet Autonomous System network; specify number of nodes
+  between 1,000 and 5,000.
+- `rand-reg`: A random d-regular graph; specify number of nodes and value for d.
+- `ER`: Erdos-Renyi random graph; specify number of nodes and edge probability.
+- `SF`: Barabasi-Albert scale-free graph; specify number of nodes and number of
+  edges to add from a new node to any existing nodes.
+
+The default graph is the partition graph on 100 nodes with 4 partitions with
+inter-partition edge probability of 0.5 and intra-partition edge probability of
+0.001. The largest number of nodes times the number of partitions allowed for
+any problem instance can be at most 5,000.
 
 ## Code Overview
 
-As noted earlier, the Graph Partitioning problem is in the [D-Wave Collection of Examples](https://github.com/dwave-examples/graph-partitioning), but there it is formulated for 2 partitions. In this repo, we're going to use the D-Wave DQM solver, and the formulation will be for `K` partitions.
+The demo program formulates this graph k-partitioning problem as a constrained
+quadratic model (CQM), and solves it using the hybrid CQM solver.
 
-The code implements a QUBO formulation of this problem, which is suitable for implementing on the DQM solver.
+### Variables
 
-The answer that we are looking for is a partition of the nodes in the graph, so
-we will assign a DQM variable for each node, i.e. variable 
-![](https://latex.codecogs.com/gif.latex?%5Clarge%20x_%7Bik%7D)
-denotes whether node `i` is in subset `k` or not.
+The formulation of this problem defines a binary variable x for each pair
+(n, p), where n is a node in the graph and p is a partition. If the solution
+returns variable (n, p) = 1, then node n is assigned to partition p. Otherwise,
+if the solution returns variable (n, p) = 0, then node n is *not* assigned to
+partition p.
 
-Our objective function should minimize the number of 
-links between different partitions. To
-count how many links between different partitions we have, 
-given a partition of the nodes (assignment of our binary variables), 
-we start with a single edge. We begin by considering the possibilities
-if this edge is in, or not in, partition `k`. The table below shows the
-four possibilities. We want either both nodes to be in partition `k`, or 
-neither node to be in partition `k`. To accomplish this, we assign a 1
-in the edge column if one node is in partition `k` and the other node is not.
+### Objective
 
-| ![](https://latex.codecogs.com/gif.latex?%5Clarge%20x_%7Bik%7D) | ![](https://latex.codecogs.com/gif.latex?%5Clarge%20x_%7Bjk%7D) | edge (i,j) |
-| :---: | :---: | :---: |
-| 0 | 0 | 0 |
-| 0 | 1 | 1 |
-| 1 | 0 | 1 |
-| 1 | 1 | 0 |
+The objective for this problem is to minimize the number of inter-partition
+edges. We can formulate this as a binary quadratic expression that needs to be
+minimized by considering an arbitrary edge (i, j) between nodes i and j in the
+graph. For each partition p, we add the expression
+(i, p) + (j, p) - 2\*(i, p)\*(j, p) to decrease the overall cost when i and j
+are assigned to the same partition, and increase the overall cost when they
+are not. To see how this expression maps to these costs, we examine the
+following table which demonstrates the cost of edge (i, j), depending on
+whether i and j are each assigned to partition p.
 
-From this table, we see that we can use the expression 
-![](https://latex.codecogs.com/gif.latex?%5Clarge%20x_%7Bik%7D%20&plus;%20x_%7Bjk%7D%20-%202%20x_%7Bik%7Dx_%7Bjk%7D)
-to calculate the edge column in our table. 
-The minimum value of the expression is for partitions with as many as possible
-of the graph's edges found between nodes in those partitions. When we utilize
-this expression over all partitions and all edges, we will maximize the number 
-of intra-partition edges, and that will minimize the number of links
-between different partitions. Thus, for the entire graph, our objective
-function can be written as shown below:
+| (i, k) | (j, k) | edge (i,j) | cost |
+| :---: | :---: | :---: | :---: |
+| 0 | 0 | intra | 0 |
+| 0 | 1 | inter | 1 |
+| 1 | 0 | inter | 1 |
+| 1 | 1 | intra | 0 |
 
-![eq1](https://latex.codecogs.com/gif.latex?%5Clarge%20objective%20%3D%20%5Cfrac%7B1%7D%7B2%7D%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%2Cj%5Cepsilon%20E%7D%28x_%7Bik%7D%20&plus;%20x_%7Bjk%7D%20-%202x_%7Bik%7D%20x_%7Bjk%7D%29)
+Now that we have an expression for the appropriate cost for each edge and each
+partition, we simply sum over all edges and all partitions to build the
+objective function that will minimize the number of inter-partition edges in
+the entire graph.
 
-where we have divided by 2 to avoid double-counting when an edge's nodes are 
-in different partitions.
+**Objective:** minimize &Sigma;<sub>(i,j)</sub> &Sigma;<sub>p</sub> x<sub>(i,p)</sub> + x<sub>(j,p)</sub> - 2\*x<sub>(i,p)</sub>\*x<sub>(j,p)</sub> 
 
-Next we need to consider our constraint:  Each partition must have the
-same size.  We can measure the size of partition `k` by summing up our binary
-variables associated with partition `k` (for example, 
-![](https://latex.codecogs.com/gif.latex?%5Clarge%20x_%7B1k%7D),
-![](https://latex.codecogs.com/gif.latex?%5Clarge%20x_%7B2k%7D), ...).
-To ensure that all of the partitions have the same size, we enforce a
-constraint that partition `k` has size equal to `N`/`K`, where `N` is the number
-of nodes in the graph and `K` is the number of partitions.
-We represent this constraint mathematically using our chosen
-binary variables as follows:
+### Constraints
 
-![eq2](https://latex.codecogs.com/gif.latex?%5Clarge%20constraint%20%3D%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Cleft%20%28%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7D%20x_%7Bik%7D%20-%20%5Cfrac%7BN%7D%7BK%7D%20%5Cright%20%29%5E2)
+#### One-Hot Constraint
 
-This will have its minimum when each partition has `N`/`K`  nodes.
+Each node in our graph must be assigned to exactly one partition, so we must
+enforce a [one-hot constraint](https://en.wikipedia.org/wiki/One-hot ) on each node. That is, for each node i, we must
+have that the sum of all binary variables associated with i is equal to 1.
 
-We bring the objective and constraints together by multiplying the 
-constraints by ![](https://latex.codecogs.com/gif.latex?%5Clarge%20%5Cgamma),
- the [Lagrange parameter](https://en.wikipedia.org/wiki/Lagrange_multiplier).
+**Constraint 1:** &Sigma;<sub>k</sub> x<sub>(i,p)</sub> = 1, for each node i
 
-![eq3](https://latex.codecogs.com/gif.latex?%5Clarge%20QUBO%20%3D%20%5Cfrac%7B1%7D%7B2%7D%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%2Cj%5Cepsilon%20E%7D%28x_%7Bik%7D%20&plus;%20x_%7Bjk%7D%20-%202x_%7Bik%7D%20x_%7Bjk%7D%29&plus;%20%5Cgamma%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Cleft%20%28%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7D%20x_%7Bik%7D%20-%20%5Cfrac%7BN%7D%7BK%7D%20%5Cright%20%29%5E2)
+#### Partition Size Constraint
 
-There are algebraic simplifications that can be performed on this sum.
-Multiplying the second term out, we find:
+To efficiently distribute the operational load across computers in our system,
+we would like the partitions to have equal size. If N is the total number of
+nodes in the graph and k is the number of partitions available, each partition
+should have size N/k. We enforce this by requiring that the sum of binary
+variables associated with each partition is equal to N/k. Note that this
+requires that N is evenly divisble by k, and so the demo file will adjust N as
+needed to enforce this requirement.
 
-![eq4](https://latex.codecogs.com/gif.latex?%5Clarge%20QUBO%20%3D%20%5Cfrac%7B1%7D%7B2%7D%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%2Cj%5Cepsilon%20E%7D%28x_%7Bik%7D%20&plus;%20x_%7Bjk%7D%20-%202x_%7Bik%7D%20x_%7Bjk%7D%29&plus;%20%5Cgamma%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Cleft%20%28%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7D%20x_%7Bik%7D%20%5Cright%20%29%5E2%20&plus;%20%5Cgamma%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%28-2%5Cfrac%7BN%7D%7Bk%7D%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7D%20x_%7Bik%7D%29%20&plus;%20%5Cgamma%5Cfrac%7BN%5E2%7D%7BK%5E2%7D%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D)
-
-and then the constant (last term) is the energy offset, which gives us:
-
-![eq5](https://latex.codecogs.com/gif.latex?%5Clarge%20QUBO%20%3D%20%5Cgamma%5Cfrac%7BN%5E2%7D%7BK%7D%20&plus;%20%5Cfrac%7B1%7D%7B2%7D%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%2Cj%5Cepsilon%20E%7D%28x_%7Bik%7D%20&plus;%20x_%7Bjk%7D%20-%202x_%7Bik%7D%20x_%7Bjk%7D%29&plus;%20%5Cgamma%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Cleft%20%28%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7D%20x_%7Bik%7D%20%5Cright%20%29%5E2%20&plus;%20%5Cgamma%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%28-2%5Cfrac%7BN%7D%7Bk%7D%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7D%20x_%7Bik%7D%29)
-
-and expanding the squared sum,
-
-![eq6](https://latex.codecogs.com/gif.latex?%5Clarge%20QUBO%20%3D%20%5Cgamma%5Cfrac%7BN%5E2%7D%7BK%7D%20&plus;%20%5Cfrac%7B1%7D%7B2%7D%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%2Cj%5Cepsilon%20E%7D%28x_%7Bik%7D%20&plus;%20x_%7Bjk%7D%20-%202x_%7Bik%7D%20x_%7Bjk%7D%29&plus;%20%5Cgamma%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Cleft%20%28%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7Dx_%7Bik%7D%20&plus;%202%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7D%20%5Csum%5Climits_%7Bj%3Ei%7D%5Climits%5E%7BN%7D%20x_%7Bik%7Dx_%7Bjk%7D%20%5Cright%20%29%20&plus;%20%5Cgamma%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%28-2%5Cfrac%7BN%7D%7Bk%7D%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7D%20x_%7Bik%7D%29)
-
-and we can merge the linear terms,
-
-![eq7](https://latex.codecogs.com/gif.latex?%5Clarge%20QUBO%20%3D%20%5Cgamma%5Cfrac%7BN%5E2%7D%7BK%7D%20&plus;%20%5Cfrac%7B1%7D%7B2%7D%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%2Cj%5Cepsilon%20E%7D%28x_%7Bik%7D%20&plus;%20x_%7Bjk%7D%20-%202x_%7Bik%7D%20x_%7Bjk%7D%29&plus;%20%5Cgamma%20%281%20-%202%5Cfrac%7BN%7D%7BK%7D%29%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7Dx_%7Bik%7D%20&plus;%202%5Cgamma%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7D%20%5Csum%5Climits_%7Bj%3Ei%7D%5Climits%5E%7BN%7D%20x_%7Bik%7Dx_%7Bjk%7D)
-
-and we can move the quadratic terms together,
-
-![eq8](https://latex.codecogs.com/gif.latex?%5Clarge%20QUBO%20%3D%20%5Cgamma%5Cfrac%7BN%5E2%7D%7BK%7D%20&plus;%20%5Cfrac%7B1%7D%7B2%7D%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%2Cj%5Cepsilon%20E%7D%28x_%7Bik%7D%20&plus;%20x_%7Bjk%7D%29%20&plus;%20%5Cgamma%20%281%20-%202%5Cfrac%7BN%7D%7BK%7D%29%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7Dx_%7Bik%7D%20-%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%2Cj%5Cepsilon%20E%7Dx_%7Bik%7D%20x_%7Bjk%7D%20&plus;%202%5Cgamma%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7D%20%5Csum%5Climits_%7Bj%3Ei%7D%5Climits%5E%7BN%7D%20x_%7Bik%7Dx_%7Bjk%7D)
-
-Now, the second term in the QUBO can be simplified if we realize that variables such as ![](https://latex.codecogs.com/gif.latex?%5Clarge%20x_%7Bik%7D) will
-appear as many times as node `i` appears in the graph, which is the
-degree of node `i` in the graph. Our QUBO thus reduces to:
-
-![eq9](https://latex.codecogs.com/gif.latex?%5Clarge%20QUBO%20%3D%20%5Cgamma%5Cfrac%7BN%5E2%7D%7BK%7D%20&plus;%20%5Cfrac%7B1%7D%7B2%7D%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7Ddegree%28i%29x_%7Bik%7D%20&plus;%20%5Cgamma%20%281%20-%202%5Cfrac%7BN%7D%7BK%7D%29%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7Dx_%7Bik%7D%20-%20%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%20%5Csum%5Climits_%7Bi%2Cj%5Cepsilon%20E%7Dx_%7Bik%7D%20x_%7Bjk%7D%20&plus;%202%5Cgamma%5Csum%5Climits_%7Bk%3D1%7D%5Climits%5E%7BK%7D%5Csum%5Climits_%7Bi%3D1%7D%5Climits%5E%7BN%7D%20%5Csum%5Climits_%7Bj%3Ei%7D%5Climits%5E%7BN%7D%20x_%7Bik%7Dx_%7Bjk%7D)
-
-Leap's DQM solver accepts problems expressed in terms of an
-Ocean [DiscreteQuadraticModel](https://docs.ocean.dwavesys.com/en/stable/docs_dimod/reference/dqm.html) object.
-The DiscreteQuadraticModel has two types of bias:
-
-* linear biases
-* quadratic biases
-
-We want to define these two biases so that a low-energy solution found by the DQM solver will correspond to a solution of the graph partitioning problem.
-
-The QUBO has five terms. The first term is the energy offset, as mentioned
-earlier. The second and third terms are linear biases, and the fourth and
-fifth terms are quadratic biases.
-
-### Linear Biases
-
-The linear biases have contributions from both the objective and the
-constraints. The contribution from the objective, the second term in the QUBO,
- reduced earlier to an expression involving the degree of each node in the 
-graph. The contribution from the constraints, the third term in the QUBO,
-is a constant for all nodes and partitions.
-
-### Quadratic Biases
-
-The quadratic biases also have contributions from both the objective and the
-constraints. The fourth term in the QUBO, from the objective, applies only
-to edges in the graph. The fifth term in the QUBO, from the constraints,
-applies to all nodes. Therefore, in the code, the quadratic bias calculations
-need to distinguish node pairs which are not edges from those which are edges.
-
-## Code Specifics
-
-Let's go through the sections of code in the graph partitioning problem:
-
-* Define the graph
-* Initialize the DQM object
-* Set the [Lagrange parameter](https://en.wikipedia.org/wiki/Lagrange_multiplier)
-* Define the linear biases
-* Define the quadratic biases
-* Solve the problem using the DQM solver
-* Count the number of links between partitions
+**Constraint 2:** &Sigma;<sub>i</sub> x<sub>(i,p)</sub> = N/k, for each partition p.
 
 ## License
 
