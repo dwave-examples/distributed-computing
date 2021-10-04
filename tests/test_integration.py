@@ -50,3 +50,13 @@ class TestDemo(unittest.TestCase):
         sample = demo.run_cqm_and_collect_solutions(cqm, sampler)
 
         _, partitions = demo.process_sample(sample, G, k, verbose=False)
+        self.assertEqual(len(partitions), k)
+
+        # Check that constraints were followed
+        nodes = list(G.nodes)
+        for key, partition in partitions.items():
+            self.assertEqual(len(partition), n/k)
+            for node in partition:
+                nodes.remove(node)
+  
+        self.assertFalse(nodes)
