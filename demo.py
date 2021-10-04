@@ -197,7 +197,7 @@ def run_cqm_and_collect_solutions(cqm, sampler):
         sampler: The CQM sampler to be used. Must have sample_cqm function.
     
     Returns:
-        best_sample (dict): Best solution found
+        dict: The first feasible solution found
     """
 
     # Initialize the solver
@@ -206,15 +206,14 @@ def run_cqm_and_collect_solutions(cqm, sampler):
     # Solve the CQM problem using the solver
     sampleset = sampler.sample_cqm(cqm, label='Example - Graph Partitioning')
 
+    feasible_sampleset = sampleset.filter(lambda row: row.is_feasible)
+
     # Return the first feasible solution
-    if not any(sampleset.record["is_feasible"]):
+    if not len(feasible_sampleset):
         print("\nNo feasible solution found.\n")
         return None
 
-    best = next(itertools.filterfalse(lambda d: not getattr(d,'is_feasible'),
-                list(sampleset.data())))
-
-    return best.sample
+    return feasible_sampleset.first.sample
 
 def process_sample(sample, G, k, verbose=True):
     """Interpret the sample found in terms of our graph.
