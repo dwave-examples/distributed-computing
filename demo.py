@@ -40,8 +40,8 @@ def read_in_args(args):
     parser.add_argument("-n", "--nodes", help="Set graph size for graph. (default: %(default)s)", default=100, type=int)
     parser.add_argument("-d", "--degree", help="Set node degree for random regular graph. (default: %(default)s)", default=4, type=int)
     parser.add_argument("-p", "--prob", help="Set graph edge probability for ER graph. Must be between 0 and 1. (default: %(default)s)", default=0.25, type=float)
-    parser.add_argument("-i", "--p-in", help="Set probability of edges within groups for partition graph. Must be between 0 and 1. (default: % (default)s)", default=0.5, type=float)
-    parser.add_argument("-o", "--p-out", help="Set probability of edges between groups for partition graph. Must be between 0 and 1. (default: % (default)s)", default=0.001, type=float)
+    parser.add_argument("-i", "--p-in", help="Set probability of edges within groups for partition graph. Must be between 0 and 1. (default: %(default)s)", default=0.5, type=float)
+    parser.add_argument("-o", "--p-out", help="Set probability of edges between groups for partition graph. Must be between 0 and 1. (default: %(default)s)", default=0.001, type=float)
     parser.add_argument("-e", "--new-edges", help="Set number of edges from new node to existing node in SF graph. (default: %(default)s)", default=4, type=int)
     parser.add_argument("-k", "--k-partition", help="Set number of partitions to divide graph into. (default: %(default)s)", default=4, type=int)
 
