@@ -65,6 +65,7 @@ def build_graph(args):
     if args.graph == 'partition':
         if args.nodes < 1:
             print("\nMust have at least one node in the graph.\nSetting size to 100.\n")
+            args.n = 100
         if args.p_in < 0 or args.p_in > 1:
             print("\nProbability must be between 0 and 1. Setting p_in to 0.5.\n")
             args.p_in = 0.5
@@ -75,9 +76,9 @@ def build_graph(args):
         k = args.k_partition
         if args.nodes % k != 0:
             n = int(args.nodes/k)*k
+            print("\nNumber of nodes must be divisible by k. Adjusted number of nodes to {}.".format(n))
         else:
             n = args.nodes
-        print("\nNumber of nodes must be divisible by k. Adjusted number of nodes to {}.".format(n))
         G = nx.random_partition_graph([int(n/k)]*k, args.p_in, args.p_out)
     elif args.graph == 'internet':
         if args.nodes < 1000 or args.nodes > 3000:
@@ -88,6 +89,7 @@ def build_graph(args):
     elif args.graph == 'rand-reg':
         if args.nodes < 1:
             print("\nMust have at least one node in the graph.\nSetting size to 100.")
+            args.n = 100
         if args.degree < 0 or args.degree >= args.nodes:
             print("\nDegree must be between 0 and n-1. Setting size to min(4, n-1).")
             args.degree = min(4, args.nodes-1)
