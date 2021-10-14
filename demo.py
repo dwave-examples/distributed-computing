@@ -74,10 +74,10 @@ def build_graph(args):
         print("\nBuilding partition graph...")
         k = args.k_partition
         if args.nodes % k != 0:
+            print("\nNumber of nodes must be divisible by k. Adjusted number of nodes to {}.".format(n))
             n = int(args.nodes/k)*k
         else:
             n = args.nodes
-        print("\nNumber of nodes must be divisible by k. Adjusted number of nodes to {}.".format(n))
         G = nx.random_partition_graph([int(n/k)]*k, args.p_in, args.p_out)
     elif args.graph == 'internet':
         if args.nodes < 1000 or args.nodes > 3000:
