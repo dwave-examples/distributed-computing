@@ -75,8 +75,8 @@ def build_graph(args):
         print("\nBuilding partition graph...")
         k = args.k_partition
         if args.nodes % k != 0:
-            print("\nNumber of nodes must be divisible by k. Adjusted number of nodes to {}.".format(n))
             n = int(args.nodes/k)*k
+            print("\nNumber of nodes must be divisible by k. Adjusted number of nodes to {}.".format(n))
         else:
             n = args.nodes
         G = nx.random_partition_graph([int(n/k)]*k, args.p_in, args.p_out)
