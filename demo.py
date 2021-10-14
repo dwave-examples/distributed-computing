@@ -325,4 +325,4 @@ if __name__ == '__main__':
     if sample is not None:
         soln, partitions = process_sample(sample, G, k)
 
-    visualize_results(G, partitions, soln)
+        visualize_results(G, partitions, soln)
