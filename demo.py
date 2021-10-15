@@ -55,8 +55,6 @@ def build_graph(graph, nodes, degree, prob, p_in, p_out, new_edges, k_partition)
         G = nx.random_partition_graph([int(nodes/k)]*k, p_in, p_out)
 
     elif graph == 'internet':
-        if nodes < 1000 or nodes > 3000:
-            raise ValueError("\nNumber of nodes for internet graph must be between 1000 and 3000.")
         print("\nReading in internet graph of size", nodes, "...")
         G = nx.random_internet_as_graph(nodes)
 
