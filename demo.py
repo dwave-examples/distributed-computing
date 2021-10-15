@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Graph partitioning with CQM solver."""
+
 from random import random
 from collections import defaultdict
 import sys
@@ -29,7 +31,6 @@ except ImportError:
     matplotlib.use("agg")
     import matplotlib.pyplot as plt
 
-# Graph partitioning with CQM solver
 
 
 def build_graph(graph, nodes, degree, prob, p_in, p_out, new_edges, k_partition):
@@ -82,6 +83,7 @@ def build_graph(graph, nodes, degree, prob, p_in, p_out, new_edges, k_partition)
 
     return G
 
+
 # Visualize the input graph
 def visualize_input_graph(G):
     """Visualize the graph to be partitioned.
@@ -98,6 +100,7 @@ def visualize_input_graph(G):
     plt.draw()
     plt.savefig('input_graph.png')
     plt.close()
+
 
 def build_cqm(G, k):
     """Build the CQM.
@@ -142,6 +145,7 @@ def build_cqm(G, k):
 
     return cqm
 
+
 def run_cqm_and_collect_solutions(cqm, sampler):
     """Send the CQM to the sampler and return the best sample found.
     Args:
@@ -166,6 +170,7 @@ def run_cqm_and_collect_solutions(cqm, sampler):
         return None
 
     return feasible_sampleset.first.sample
+
 
 def process_sample(sample, G, k, verbose=True):
     """Interpret the sample found in terms of our graph.
@@ -206,6 +211,7 @@ def process_sample(sample, G, k, verbose=True):
         print("Number of links within partitions:", len(G.edges)-sum_diff)
 
     return soln, partitions
+
 
 def visualize_results(G, partitions, soln):
     """Visualize the partition.
