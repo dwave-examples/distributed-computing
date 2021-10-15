@@ -18,7 +18,7 @@ import sys
 
 import networkx as nx
 import numpy as np
-import argparse
+import click
 import matplotlib
 from dimod import Binary, ConstrainedQuadraticModel, quicksum
 from dwave.system import LeapHybridCQMSampler
@@ -31,103 +31,56 @@ except ImportError:
 
 # Graph partitioning with CQM solver
 
-def read_in_args(args):
-    """Read in user specified parameters."""
 
-    # Set up user-specified optional arguments
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-g", "--graph", default='partition', choices=['partition', 'internet', 'rand-reg', 'ER', 'SF'], help='Graph to partition (default: %(default)s)')
-    parser.add_argument("-n", "--nodes", help="Set graph size for graph. (default: %(default)s)", default=100, type=int)
-    parser.add_argument("-d", "--degree", help="Set node degree for random regular graph. (default: %(default)s)", default=4, type=int)
-    parser.add_argument("-p", "--prob", help="Set graph edge probability for ER graph. Must be between 0 and 1. (default: %(default)s)", default=0.25, type=float)
-    parser.add_argument("-i", "--p-in", help="Set probability of edges within groups for partition graph. Must be between 0 and 1. (default: %(default)s)", default=0.5, type=float)
-    parser.add_argument("-o", "--p-out", help="Set probability of edges between groups for partition graph. Must be between 0 and 1. (default: %(default)s)", default=0.001, type=float)
-    parser.add_argument("-e", "--new-edges", help="Set number of edges from new node to existing node in SF graph. (default: %(default)s)", default=4, type=int)
-    parser.add_argument("-k", "--k-partition", help="Set number of partitions to divide graph into. (default: %(default)s)", default=4, type=int)
-
-    return parser.parse_args(args)
-
-def build_graph(args):
+def build_graph(graph, nodes, degree, prob, p_in, p_out, new_edges, k_partition):
     """Builds graph from user specified parameters or use defaults.
-    Args:
-        Args: User inputs for scenario
     
+    Args:
+        See @click decorator before main.
+
     Returns:
         G (Graph): The graph to be partitioned
     """
     
+    k = k_partition
+
+    if k * nodes > 5000:
+        raise ValueError("Problem size is too large.")
+    elif nodes % k != 0:
+        raise ValueError("Number of nodes must be divisible by k.")
+
     # Build graph using networkx
-    if args.k_partition * args.nodes > 5000:
-        raise ValueError("\nProblem size is too large.\n")
-    if args.k_partition < 2:
-        print("\nMust have at least two partitions.\n\tSetting number of partitions to 4.\n")
-        args.k_partition = 4
-    if args.graph == 'partition':
-        if args.nodes < 1:
-            print("\nMust have at least one node in the graph.\nSetting size to 100.\n")
-            args.n = 100
-        if args.p_in < 0 or args.p_in > 1:
-            print("\nProbability must be between 0 and 1. Setting p_in to 0.5.\n")
-            args.p_in = 0.5
-        if args.p_out < 0 or args.p_out > 1:
-            print("\nProbability must be between 0 and 1. Setting p_out to 0.001.\n")
-            args.p_out = 0.001
+    if graph == 'partition':
         print("\nBuilding partition graph...")
-        k = args.k_partition
-        if args.nodes % k != 0:
-            n = int(args.nodes/k)*k
-            print("\nNumber of nodes must be divisible by k. Adjusted number of nodes to {}.".format(n))
-        else:
-            n = args.nodes
-        G = nx.random_partition_graph([int(n/k)]*k, args.p_in, args.p_out)
-    elif args.graph == 'internet':
-        if args.nodes < 1000 or args.nodes > 3000:
-            args.nodes = 1000
-            print("\nSize for internet graph must be between 1000 and 3000.\nSetting size to 1000.")
-        print("\nReading in internet graph of size", args.nodes, "...")
-        G = nx.random_internet_as_graph(args.nodes)
-    elif args.graph == 'rand-reg':
-        if args.nodes < 1:
-            print("\nMust have at least one node in the graph.\nSetting size to 100.")
-            args.n = 100
-        if args.degree < 0 or args.degree >= args.nodes:
-            print("\nDegree must be between 0 and n-1. Setting size to min(4, n-1).")
-            args.degree = min(4, args.nodes-1)
-        if args.degree*args.nodes % 2 == 1:
-            print("\nRequirement: n*d must be even.")
-            if args.degree > 0:
-                args.degree -= 1
-                print("\nSetting degree to", args.degree)
-            elif args.nodes-1 > args.degree:
-                args.nodes -= 1
-                print("\nSetting nodes to", args.nodes)
-            else:
-                print("\nSetting nodes to 1000 and degree to 4.")
-                args.nodes = 1000
-                args.degree = 4
+        G = nx.random_partition_graph([int(nodes/k)]*k, p_in, p_out)
+
+    elif graph == 'internet':
+        if nodes < 1000 or nodes > 3000:
+            raise ValueError("\nNumber of nodes for internet graph must be between 1000 and 3000.")
+        print("\nReading in internet graph of size", nodes, "...")
+        G = nx.random_internet_as_graph(nodes)
+
+    elif graph == 'rand-reg':
+        if degree >= nodes:
+            raise ValueError("degree must be less than number of nodes")
+        if degree * nodes % 2 == 1:
+            raise ValueError("degree * nodes must be even")
         print("\nGenerating random regular graph...")
-        G = nx.random_regular_graph(args.degree, args.nodes)
-    elif args.graph == 'ER':
-        if args.nodes < 1:
-            print("\nMust have at least one node in the graph. Setting size to 1000.")
-            args.nodes = 1000
-        if args.prob < 0 or args.prob > 1:
-            print("\nProbability must be between 0 and 1. Setting prob to 0.25.")
-            args.prob = 0.25
+        G = nx.random_regular_graph(degree, nodes)
+
+    elif graph == 'ER':
         print("\nGenerating Erdos-Renyi graph...")
-        G = nx.erdos_renyi_graph(args.nodes, args.prob)
-    elif args.graph == 'SF':
-        if args.nodes < 1:
-            print("\nMust have at least one node in the graph. Setting size to 1000.")
-            args.nodes = 1000
-        if args.new_edges < 0 or args.new_edges > args.nodes:
-            print("\nNumber of edges must be between 1 and n. Setting to min(n-1, 5).")
-            args.new_edges = min(args.nodes-1, 5)
+        G = nx.erdos_renyi_graph(nodes, prob)
+
+    elif graph == 'SF':
+        if new_edges > nodes:
+            raise ValueError("Number of edges must be less than number of nodes")
         print("\nGenerating Barabasi-Albert scale-free graph...")
-        G = nx.barabasi_albert_graph(args.nodes, args.new_edges)
+        G = nx.barabasi_albert_graph(nodes, new_edges)
+
     else:
-        print("\nBuilding partition graph...")
-        G = nx.random_partition_graph([25, 25, 25, 25], 0.5, 0.001)
+        # Should not be reachable, due to click argument validation
+        raise ValueError(f"Unexpected graph type: {graph}")
 
     return G
 
@@ -306,17 +259,31 @@ def visualize_results(G, partitions, soln):
 
     print("\tOutput stored in", output_name)
 
-if __name__ == '__main__':
 
-    args = read_in_args(sys.argv[1:])
+@click.command()
+@click.option("-g", "--graph", type=click.Choice(['partition', 'internet', 'rand-reg', 'ER', 'SF']),
+              help="Graph to partition.", default='partition', show_default=True)
+@click.option("-n", "--nodes", help="Set graph size for graph.", default=100, type=click.IntRange(1),
+              show_default=True)
+@click.option("-d", "--degree", help="Set node degree for random regular graph.", default=4,
+              type=click.IntRange(1), show_default=True)
+@click.option("-p", "--prob", help="Set graph edge probability for ER graph. Must be between 0 and 1.",
+              type=click.FloatRange(0, 1), default=0.25, show_default=True)
+@click.option("-i", "--p-in", help="Set probability of edges within groups for partition graph. Must be between 0 and 1.",
+              type=click.FloatRange(0, 1), default=0.5, show_default=True)
+@click.option("-o", "--p-out", help="Set probability of edges between groups for partition graph. Must be between 0 and 1.",
+              type=click.FloatRange(0, 1), default=0.001, show_default=True)
+@click.option("-e", "--new-edges", help="Set number of edges from new node to existing node in SF graph.",
+              default=4, type=click.IntRange(1), show_default=True)
+@click.option("-k", "--k-partition", help="Set number of partitions to divide graph into.", default=4,
+              type=click.IntRange(2), show_default=True)
+def main(graph, nodes, degree, prob, p_in, p_out, new_edges, k_partition):
 
-    G = build_graph(args)
-
-    k = args.k_partition
+    G = build_graph(graph, nodes, degree, prob, p_in, p_out, new_edges, k_partition)
 
     visualize_input_graph(G)
 
-    cqm = build_cqm(G, k)
+    cqm = build_cqm(G, k_partition)
 
     # Initialize the CQM solver
     print("\nOptimizing on LeapHybridCQMSampler...")
@@ -325,6 +292,10 @@ if __name__ == '__main__':
     sample = run_cqm_and_collect_solutions(cqm, sampler)
     
     if sample is not None:
-        soln, partitions = process_sample(sample, G, k)
+        soln, partitions = process_sample(sample, G, k_partition)
 
         visualize_results(G, partitions, soln)
+
+
+if __name__ == '__main__':
+    main()
