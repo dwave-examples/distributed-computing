@@ -302,4 +302,5 @@ def main(graph, nodes, degree, prob, p_in, p_out, new_edges, k_partition):
 
 
 if __name__ == '__main__':
+    # pylint: disable=no-value-for-parameter
     main()
