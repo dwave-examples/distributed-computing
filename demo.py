@@ -264,7 +264,7 @@ def visualize_results(G, partitions, soln):
     print("\tOutput stored in", output_name)
 
 
-@click.command()
+@click.command(context_settings=dict(help_option_names=['-h', '--help']))
 @click.option("-g", "--graph", type=click.Choice(['partition', 'internet', 'rand-reg', 'ER', 'SF']),
               help="Graph to partition.", default='partition', show_default=True)
 @click.option("-n", "--nodes", help="Set graph size for graph.", default=100, type=click.IntRange(1),
