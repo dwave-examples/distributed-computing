@@ -67,7 +67,7 @@ functions, and the details of these functions can be found [here](https://networ
 - `partition`: Partition graph; specify number of nodes, number of partitions,
   and inter- and intra-partition edge probabilities.
 - `internet`: Internet Autonomous System network; specify number of nodes
-  between 1,000 and 5,000.
+  and partitions.
 - `rand-reg`: A random d-regular graph; specify number of nodes and value for d.
 - `ER`: Erdos-Renyi random graph; specify number of nodes and edge probability.
 - `SF`: Barabasi-Albert scale-free graph; specify number of nodes and number of
