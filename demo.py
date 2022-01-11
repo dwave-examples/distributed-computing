@@ -121,13 +121,14 @@ def build_cqm(G, k):
 
     # Add binary variables, one for each node and each partition in the graph
     print("\nAdding variables....")
-    v = [[Binary(f'v_{i},{k}') for k in partitions] for i in G.nodes]   
+    v = [[Binary(f'v_{i},{k}') for k in partitions] for i in G.nodes]
+    labels = [[f'v_{i},{k}' for k in partitions] for i in G.nodes]
 
     # One-hot constraint: each node is assigned to exactly one partition
     print("\nAdding one-hot constraints...")
     for n in G.nodes:
         # print("\nAdding one-hot for node", n)
-        cqm.add_constraint(quicksum(v[n]) == 1, label='one-hot-node-{}'.format(n)) 
+        cqm.add_discrete(labels[n], label=f"one-hot-node-{n}")
 
     # Constraint: Partitions have equal size
     print("\nAdding partition size constraint...")
@@ -291,7 +292,7 @@ def main(graph, nodes, degree, prob, p_in, p_out, new_edges, k_partition):
 
     # Initialize the CQM solver
     print("\nOptimizing on LeapHybridCQMSampler...")
-    sampler = LeapHybridCQMSampler()
+    sampler = LeapHybridCQMSampler(solver='hybrid_constrained_quadratic_model_version1p')
     
     sample = run_cqm_and_collect_solutions(cqm, sampler)
     
