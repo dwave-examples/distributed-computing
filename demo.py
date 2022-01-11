@@ -292,7 +292,7 @@ def main(graph, nodes, degree, prob, p_in, p_out, new_edges, k_partition):
 
     # Initialize the CQM solver
     print("\nOptimizing on LeapHybridCQMSampler...")
-    sampler = LeapHybridCQMSampler(solver='hybrid_constrained_quadratic_model_version1p')
+    sampler = LeapHybridCQMSampler()
     
     sample = run_cqm_and_collect_solutions(cqm, sampler)
     
