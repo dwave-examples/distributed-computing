@@ -122,13 +122,12 @@ def build_cqm(G, k):
     # Add binary variables, one for each node and each partition in the graph
     print("\nAdding variables....")
     v = [[Binary(f'v_{i},{k}') for k in partitions] for i in G.nodes]
-    labels = [[f'v_{i},{k}' for k in partitions] for i in G.nodes]
 
     # One-hot constraint: each node is assigned to exactly one partition
     print("\nAdding one-hot constraints...")
-    for n in G.nodes:
-        # print("\nAdding one-hot for node", n)
-        cqm.add_discrete(labels[n], label=f"one-hot-node-{n}")
+    for i in G.nodes:
+        # print("\nAdding one-hot for node", i)
+        cqm.add_discrete([f'v_{i},{k}' for k in partitions], label=f"one-hot-node-{i}")
 
     # Constraint: Partitions have equal size
     print("\nAdding partition size constraint...")
