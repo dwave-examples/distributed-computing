@@ -133,7 +133,7 @@ def build_cqm(G, k):
     print("\nAdding partition size constraint...")
     for p in partitions:
         # print("\nAdding partition size constraint for partition", p)
-        cqm.add_constraint(quicksum(v[i][p] for i in G.nodes) == G.number_of_nodes()/k, label='partition-size-{}'.format(p))
+        cqm.add_constraint(quicksum(v[i][p] for i in G.nodes) == G.number_of_nodes()/k, label=f'partition-size-{p}')
 
     # Objective: minimize edges between partitions
     print("\nAdding objective...")
