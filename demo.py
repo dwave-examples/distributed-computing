@@ -221,7 +221,7 @@ def visualize_results(G, partitions, soln):
         soln (list): List of partitions, indexed by node
     
     Returns:
-        None. Output is saved as output_graphA.png.
+        None. Output is saved as output_graph.png.
     """
 
     print("\nVisualizing output...")
