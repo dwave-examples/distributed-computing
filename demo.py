@@ -121,19 +121,19 @@ def build_cqm(G, k):
 
     # Add binary variables, one for each node and each partition in the graph
     print("\nAdding variables....")
-    v = [[Binary(f'v_{i},{k}') for k in partitions] for i in G.nodes]
+    v = [[Binary(f'v_{i},{p}') for p in partitions] for i in G.nodes]
 
     # One-hot constraint: each node is assigned to exactly one partition
     print("\nAdding one-hot constraints...")
     for i in G.nodes:
         # print("\nAdding one-hot for node", i)
-        cqm.add_discrete([f'v_{i},{k}' for k in partitions], label=f"one-hot-node-{i}")
+        cqm.add_discrete([f'v_{i},{p}' for p in partitions], label=f"one-hot-node-{i}")
 
     # Constraint: Partitions have equal size
     print("\nAdding partition size constraint...")
     for p in partitions:
         # print("\nAdding partition size constraint for partition", p)
-        cqm.add_constraint(quicksum(v[n][p] for n in G.nodes) == G.number_of_nodes()/k, label='partition-size-{}'.format(p))
+        cqm.add_constraint(quicksum(v[i][p] for i in G.nodes) == G.number_of_nodes()/k, label=f'partition-size-{p}')
 
     # Objective: minimize edges between partitions
     print("\nAdding objective...")
@@ -196,8 +196,8 @@ def process_sample(sample, G, k, verbose=True):
 
     # Count the nodes in each partition
     counts = np.zeros(k)
-    for i in partitions:
-        counts[i] += len(partitions[i])
+    for p in partitions:
+        counts[p] += len(partitions[p])
 
     # Compute the number of links between different partitions
     sum_diff = 0
@@ -221,7 +221,7 @@ def visualize_results(G, partitions, soln):
         soln (list): List of partitions, indexed by node
     
     Returns:
-        None. Output is saved as output_graph.png.        
+        None. Output is saved as output_graph.png.
     """
 
     print("\nVisualizing output...")
