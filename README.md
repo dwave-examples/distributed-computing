@@ -137,7 +137,7 @@ we would like the partitions to have equal size. If N is the total number of
 nodes in the graph and k is the number of partitions available, each partition
 should have size N/k. We enforce this by requiring that the sum of binary
 variables associated with each partition is equal to N/k. Note that this
-requires that N is evenly divisble by k, and so the demo file will adjust N as
+requires that N is evenly divisible by k, and so the demo file will adjust N as
 needed to enforce this requirement.
 
 **Constraint 2:** &Sigma;<sub>i</sub> x<sub>(i,p)</sub> = N/k, for each partition p.
